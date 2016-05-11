@@ -1,0 +1,18 @@
+<meta name="viewport" content="width=device-width" />
+<section data-ng-controller="ArticlesController">
+	<div class="articles-gallery">
+		<carousel active="active" interval="myInterval" no-wrap="noWrapSlides">
+			 <slide ng-repeat="slide in slides track by slide.id" index="slide.id">
+				 <img class="book-cover" ng-src="{{slide.image}}">
+				 <div class="carousel-caption">
+					 <h1 class='book-title'>{{slide.text}}</h1>
+				   <br>
+					 <br>
+					 <br>
+					 <br>
+					 <p class='book-description'>{{slide.description}}</p>
+				 </div>
+			 </slide>
+		 </carousel>
+ 	</div>
+</section>
