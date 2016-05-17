@@ -115,6 +115,7 @@ module.exports = function(db) {
 
 	// Globbing routing files
 	config.getGlobbedFiles('./app/routes/**/*.js').forEach(function(routePath) {
+		//console.log(routePath);
 		require(path.resolve(routePath))(app);
 	});
 
