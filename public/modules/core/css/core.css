@@ -38,8 +38,8 @@ a.btn-social-icon{
 
 .header-pic {
 	margin: auto;
-	width: 430px;
-	height: 200px;
+	width: 500px;
+	height: auto;
 }
 
 .site-nav-bar {
@@ -60,6 +60,10 @@ li.nav-item{
 
 }
 
+.itemIsActive {
+	background: #efefef !important;
+}
+
 @media screen and (max-width : 991px){
 	li.nav-item{
 		height: 72px;
@@ -76,6 +80,9 @@ li.nav-item:hover{
 
 
 /*overwrite*/
+.navbar-fixed-top {
+	position: inherit;
+}
 @media screen and (min-width: 768px){
 	.navbar-nav {
 	    float: none;

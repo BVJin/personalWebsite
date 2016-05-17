@@ -3,6 +3,12 @@
 		position: fixed;
 	}
 }
+
+@font-face {
+   font-family: Jinzingoer;
+   src: url(../font/Jinzingoer.ttf);
+}
+
 .remove-account-container {
 	display: inline-block;
 	position: relative;
@@ -11,4 +17,14 @@
 	top: 10px;
 	right: 10px;
 	position: absolute;
+}
+
+.big-sign {
+	text-align: center;
+	font-weight: bold;
+	font-family: Jinzingoer;
+	background: white;
+	width: 60%;
+	margin: auto;
+	font-size: 2em;
 }
