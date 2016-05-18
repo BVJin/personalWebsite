@@ -1,6 +1,7 @@
 .articles-gallery{
   margin: auto;
-  width: 80%;
+  width: 70%;
+  height: auto;
   margin-top: 30px;
 }
 
@@ -14,20 +15,27 @@
   filter: blur(5px);
 }
 
-.book-title{
-  float:left;
-}
+
 
 .book-description{
-  text-align: left;
+  /*text-align: left;*/
 }
 
 
-@media only screen and (max-width: 480px) {
+/*@media only screen and (max-width: 480px) {
   .book-title{
     font-size: 1.3em;
   }
   .book-description{
     font-size: 0.6em;
   }
+}
+
+@media only screen and (max-width: 990px){
+  .book-title{
+    font-size: 1.3em;
+  }
+  .book-description{
+    font-size: 0.6em;
+  }*/
 }
