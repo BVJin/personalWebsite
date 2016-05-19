@@ -16,6 +16,7 @@
     "angular-ui-router": "~0.2.11"
   },
   "devDependencies": {
-    "bootstrap-social": "^5.0.0"
+    "bootstrap-social": "^5.0.0",
+    "ng-table": "~0.8.3"
   }
 }

@@ -8,10 +8,6 @@ angular.module('articles').config(['$stateProvider',
 		.state('articles', {
 			url: '/articles',
 			templateUrl: 'modules/articles/views/articles.client.view.html'
-		})
-		.state('toughWorkers', {
-				url: '/articles/toughWorkers',
-				templateUrl: 'modules/articles/views/articles/tough_workers.client.view.html'
 		});
 	}
 ]);

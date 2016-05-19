@@ -1,15 +1,34 @@
 <meta name="viewport" content="width=device-width" />
 <section data-ng-controller="ArticlesController">
-	<div class="articles-gallery">
-		<uib-carousel active="active" interval="myInterval" no-wrap="noWrapSlides">
-			 <uib-slide ng-repeat="slide in slides track by slide.id" index="slide.id" ui-sref={{slide.sref}}>
-				 <img  class="book-cover" ng-src="{{slide.image}}">
-				 <div class="carousel-caption">
-					 <h3 class='book-title'>{{slide.text}}</h3>
+	<div class="row content-list">
+		<div class="col-md-6 books-list">
+			<div class="list-group booksList-frame">
+			  <li class="list-group-item book-item" ng-click="currentBook='The Tough Workers'">
+					<i class="pull-right glyphicon glyphicon-chevron-right" ng-show="currentBook.includes('The Tough Workers');"></i>
+			    <strong>The Tough Workers</strong>
+					<hr>
+			  </li>
 
-					 <p class='book-description'>{{slide.description}}</p>
-				 </div>
-			 </uib-slide>
-		 </uib-carousel>
- 	</div>
+				<li class="list-group-item book-item" ng-click="currentBook='Eassys'">
+					<i class="pull-right glyphicon glyphicon-chevron-right" ng-show="currentBook.includes('Eassys');"></i>
+			    <strong>Eassys</strong>
+					<hr>
+			  </li>
+				<button ng-click="test()">lala</button>
+			</div>
+		</div>
+		<div class="col-md-6 articles-list">
+			<div class="list-group">
+			  <a class="list-group-item">
+			    <span class="article-title">第一章</span>
+					<!-- <span class="article-author">Author: BV</span> -->
+					<span class="article-date">02/25/2016</span>
+			  </a>
+			  <a class="list-group-item">Dapibus ac facilisis in</a>
+			  <a class="list-group-item">Morbi leo risus</a>
+			  <a class="list-group-item">Porta ac consectetur ac</a>
+			  <a class="list-group-item">Vestibulum at eros</a>
+			</div>
+		</div>
+	</div>
 </section>
