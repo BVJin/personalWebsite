@@ -1,8 +1,4 @@
 
-a.btn-social-icon{
-	margin-top: 20px;
-	width:100%;
-}
 .navbar-inverse .navbar-brand {
   color: #87CEFA;
 }
@@ -63,6 +59,17 @@ li.nav-item{
 .itemIsActive {
 	background: #efefef !important;
 }
+
+/*footer*/
+
+.social-bar{
+	text-align: center;
+}
+
+a.btn-social-icon{
+	margin-left: 3px;
+}
+
 
 @media screen and (max-width : 991px){
 	li.nav-item{

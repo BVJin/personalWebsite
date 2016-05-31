@@ -17,7 +17,8 @@ module.exports = {
 				'public/lib/bootstrap/dist/css/bootstrap-theme.css',
 				'public/lib/bootstrap-social/bootstrap-social.css',
 				'public/lib/font-awesome/css/font-awesome.css',
-				'public/lib/ng-table/dist/ng-table.min.css'
+				'public/lib/ng-table/dist/ng-table.min.css',
+				'public/lib/bootstrap-social/bootstrap-social.css'
 			],
 			js: [
 				'public/lib/angular/angular.js',
