@@ -1,0 +1,21 @@
+<section data-ng-controller="BlogController">
+	<div><strong>Welcome back, my master ! :D</strong></div>
+	<div class="editor-wrapper" ng-show="!ifPreview" >
+		<div>
+			<span id="titleWarning" >Title:</span>
+			<input type="text" ng-model="articleObj.title" class="form-control">
+			<div ng-show="ifWarning" class="blog-warning">Please input a title at least, you lazy fucker!</div>
+		</div>
+		<div class="text-angular">
+		Content:
+			<div text-angular ng-model="articleObj.content"></div>
+		</div>
+	</div>
+	<div ng-show="ifPreview" ng-bind-html="articleObj.content"></div>
+	<div class="bottom-btns">
+		<button type="button" class='btn btn-default' ng-click="articleObj.title?submitArticle(): noTitle()">Submit</button>
+		&nbsp;&nbsp;
+		<button ng-show="!ifPreview" type="button" class='btn btn-default' ng-click="articleObj.title?ifPreview = !ifPreview : noTitle()">Preview</button>
+		<button ng-show="ifPreview" type="button" class='btn btn-default' ng-click="ifPreview = !ifPreview; ifWarning = false">Back</button>
+	</div>
+</section>

@@ -18,7 +18,9 @@ module.exports = {
 				'public/lib/bootstrap-social/bootstrap-social.css',
 				'public/lib/font-awesome/css/font-awesome.css',
 				'public/lib/ng-table/dist/ng-table.min.css',
-				'public/lib/bootstrap-social/bootstrap-social.css'
+				'public/lib/bootstrap-social/bootstrap-social.css',
+				'public/lib/textAngular/dist/textAngular.css'
+
 			],
 			js: [
 				'public/lib/angular/angular.js',
@@ -30,7 +32,11 @@ module.exports = {
 				'public/lib/angular-ui-router/release/angular-ui-router.js',
 				'public/lib/angular-ui-utils/ui-utils.js',
 				'public/lib/angular-bootstrap/ui-bootstrap-tpls.js',
-				'public/lib/ng-table/dist/ng-table.min.js'
+				'public/lib/ng-table/dist/ng-table.min.js',
+				'public/lib/textAngular/dist/textAngular-rangy.min.js',
+				'public/lib/textAngular/dist/textAngular-sanitize.min.js',
+				'public/lib/textAngular/dist/textAngular.min.js'
+
 			]
 		},
 		css: [

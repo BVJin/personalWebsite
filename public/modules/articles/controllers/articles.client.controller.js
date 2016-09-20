@@ -4,7 +4,7 @@ angular.module('articles').controller('ArticlesController', ['$scope', "NgTableP
 	function($scope, NgTableParams) {
 		$scope.currentBook = "";
 
-		
+
 
 
 

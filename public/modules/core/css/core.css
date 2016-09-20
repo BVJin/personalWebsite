@@ -80,9 +80,20 @@ a.btn-social-icon{
 		display: inline-block;
 		margin-top: 10px;
 	}
+
+  .nav-item > .menu-dropdown{
+    margin-top: 0px;
+  }
 }
+
 li.nav-item:hover{
 	background-color: #efefef;
+}
+
+.dropdown-custom{
+  margin-left: -38%;
+  margin-top: 18px;
+  width: 172px;
 }
 
 
