@@ -10,6 +10,12 @@
   margin-top: 20px;
 }
 
+.preview-title{
+  font-size: 3em;
+  font-weight: bold;
+  text-align: left;
+}
+
 .bottom-btns{
   margin-top: 20px;
 }
