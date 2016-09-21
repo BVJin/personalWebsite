@@ -16,8 +16,28 @@
   text-align: left;
 }
 
+.books-dropdown-wrapper{
+  margin-top: 40px;
+}
+
+.books-dropdown-wrapper > span{
+    margin-top: 5px;
+}
+
+.books-dropdown-wrapper > select {
+  height: 34px;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #555;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
 .bottom-btns{
-  margin-top: 20px;
+  margin-top: 120px;
 }
 /* overwirte editor */
 .ta-root.focussed > .ta-scroll-window.form-control {

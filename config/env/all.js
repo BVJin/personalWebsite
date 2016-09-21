@@ -19,7 +19,8 @@ module.exports = {
 				'public/lib/font-awesome/css/font-awesome.css',
 				'public/lib/ng-table/dist/ng-table.min.css',
 				'public/lib/bootstrap-social/bootstrap-social.css',
-				'public/lib/textAngular/dist/textAngular.css'
+				'public/lib/textAngular/dist/textAngular.css',
+				'public/lib/sweetalert/dist/sweetalert.css'
 
 			],
 			js: [
@@ -35,8 +36,9 @@ module.exports = {
 				'public/lib/ng-table/dist/ng-table.min.js',
 				'public/lib/textAngular/dist/textAngular-rangy.min.js',
 				'public/lib/textAngular/dist/textAngular-sanitize.min.js',
-				'public/lib/textAngular/dist/textAngular.min.js'
-
+				'public/lib/textAngular/dist/textAngular.min.js',
+				'public/lib/ngSweetAlert/SweetAlert.min.js',
+				'public/lib/sweetalert/dist/sweetalert.min.js'
 			]
 		},
 		css: [
