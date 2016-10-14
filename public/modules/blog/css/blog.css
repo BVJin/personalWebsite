@@ -1,3 +1,4 @@
+
 .editor-wrapper{
   margin-top: 50px;
 }
@@ -8,6 +9,10 @@
 
 .text-angular{
   margin-top: 20px;
+}
+
+.popover-create-btn{
+  top: 10px;
 }
 
 .preview-title{
@@ -39,6 +44,8 @@
 .bottom-btns{
   margin-top: 120px;
 }
+
+
 /* overwirte editor */
 .ta-root.focussed > .ta-scroll-window.form-control {
   margin-top: 5px;

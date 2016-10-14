@@ -16,5 +16,6 @@ angular.module('blog').controller('BlogController', ['$scope', '$anchorScroll', 
 			$location.hash('titleWarning');
 			$anchorScroll();
 		}
+
 	}
 ]);

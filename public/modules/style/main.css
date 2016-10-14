@@ -1,0 +1,10 @@
+.bv-btn {
+  margin-left: 1%;
+  text-align: center;
+  position: relative;
+  padding: 5px 5px;
+  background-color: transparent;
+  color: #87CEFA;
+  border-radius: 4px;
+  border: 1px solid #87CEFA;
+}

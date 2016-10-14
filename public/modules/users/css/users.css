@@ -1,3 +1,4 @@
+
 @media (min-width: 992px) {
 	.nav-users {
 		position: fixed;
@@ -31,5 +32,12 @@
 
 .signIn-button{
 	width: 100%;
+	padding: 10px 10px;
 	margin-top: 20px;
+}
+
+.signIn-label {
+	color: #87CEFA;
+	margin-bottom: 10px;
+	font-weight: normal;
 }

@@ -30,7 +30,13 @@ var BookSchema = new Schema({
 	name: {
 		type: String,
 		default: '',
+		unique: true,
 		required: 'Book name cannot be blank'
+	},
+
+	ifDelete: {
+		type: Boolean,
+		default: false
 	}
 });
 
