@@ -5,6 +5,11 @@ module.exports = {
 	app: {
 		title: 'BV'
 	},
+	constant: {
+		authorizedRoles: ['admin'],
+		tokenExpriation: 60 * 60 * 48,
+		secretKey: 'bvnonesuch'
+	},
 	facebook: {
 		clientID: process.env.FACEBOOK_ID || 'APP_ID',
 		clientSecret: process.env.FACEBOOK_SECRET || 'APP_SECRET',

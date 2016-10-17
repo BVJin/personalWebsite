@@ -82,6 +82,11 @@ var UserSchema = new Schema({
 		type: Date,
 		default: Date.now
 	},
+	// /* Api auth token */
+	// apiAuthToken: {
+	// 	type: String,
+	// 	default: ''
+	// },
 	/* For reset password */
 	resetPasswordToken: {
 		type: String

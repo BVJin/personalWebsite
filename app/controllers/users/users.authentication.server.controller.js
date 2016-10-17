@@ -7,7 +7,9 @@ var _ = require('lodash'),
 	errorHandler = require('../errors.server.controller'),
 	mongoose = require('mongoose'),
 	passport = require('passport'),
-	User = mongoose.model('User');
+	jwt = require('jsonwebtoken'),
+	User = mongoose.model('User'),
+	config = require.main.require('./config/env/development');
 
 /**
  * Signup
@@ -23,7 +25,6 @@ exports.signup = function(req, res) {
 	// Add missing user fields
 	user.provider = 'local';
 	user.displayName = user.firstName + ' ' + user.lastName;
-
 	// Then save the user
 	user.save(function(err) {
 		if (err) {
@@ -39,7 +40,23 @@ exports.signup = function(req, res) {
 				if (err) {
 					res.status(400).send(err);
 				} else {
-					res.json(user);
+					//Assign auth token to admin user
+					config.constant.authorizedRoles.every(function(role){
+						if(user.roles.indexOf(role) > - 1){
+							var token = jwt.sign(user, config.constant.secretKey, {
+								expiresIn: parseInt(config.constant.tokenExpriation)
+							});
+							user.apiAuthToken = token;
+							return false;
+						}
+						return true;
+					});
+					// return the information including token as JSON
+	        res.json({
+	          success: true,
+	          message: 'Enjoy your token!',
+	          token: user.apiAuthToken
+	        });
 				}
 			});
 		}
@@ -62,7 +79,19 @@ exports.signin = function(req, res, next) {
 				if (err) {
 					res.status(400).send(err);
 				} else {
-					res.json(user);
+					var updatedUser = JSON.parse(JSON.stringify(user));
+					//Assign auth token to admin user
+					config.constant.authorizedRoles.every(function(role){
+						if(updatedUser.roles.indexOf(role) > - 1){
+							var token = jwt.sign(user, config.constant.secretKey, {
+								expiresIn: parseInt(config.constant.tokenExpriation)
+							});
+							updatedUser.apiAuthToken = token;
+							return false;
+						}
+						return true;
+					});
+					res.json(updatedUser);
 				}
 			});
 		}
