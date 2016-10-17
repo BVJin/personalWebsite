@@ -36,7 +36,7 @@ var BookSchema = new Schema({
 
 	ifDelete: {
 		type: Boolean,
-		default: false
+		default: true
 	}
 });
 

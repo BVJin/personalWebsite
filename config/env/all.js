@@ -38,7 +38,9 @@ module.exports = {
 				'public/lib/textAngular/dist/textAngular-sanitize.min.js',
 				'public/lib/textAngular/dist/textAngular.min.js',
 				'public/lib/ngSweetAlert/SweetAlert.min.js',
-				'public/lib/sweetalert/dist/sweetalert.min.js'
+				'public/lib/sweetalert/dist/sweetalert.min.js',
+				'public/lib/spin.js/spin.js',
+				'public/lib/angular-spinner/angular-spinner.js'
 			]
 		},
 		css: [

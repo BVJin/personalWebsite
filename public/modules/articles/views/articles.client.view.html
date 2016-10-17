@@ -2,19 +2,15 @@
 <section data-ng-controller="ArticlesController">
 	<div class="row content-list">
 		<div class="col-md-6 books-list">
-			<div class="list-group booksList-frame">
-			  <li class="list-group-item book-item" ng-click="currentBook='The Tough Workers'">
-					<i class="pull-right glyphicon glyphicon-chevron-right" ng-show="currentBook.includes('The Tough Workers');"></i>
-			    <strong>The Tough Workers</strong>
-					<hr>
-			  </li>
-
-				<li class="list-group-item book-item" ng-click="currentBook='Eassys'">
-					<i class="pull-right glyphicon glyphicon-chevron-right" ng-show="currentBook.includes('Eassys');"></i>
-			    <strong>Eassys</strong>
-					<hr>
-			  </li>
-				<button ng-click="test()">lala</button>
+			<span us-spinner="{radius:10, width:8, length: 16, color:'#87CEFA'}" spinner-on="loading.book"></span>
+			<div ng-if="!loading.book" class="list-group booksList-frame">
+				<li class="list-group-item book-item"  ng-repeat="book in books track by book._id" ng-class="{ selectedBook : currentBook.name == book.name}" ng-click="pickBook(book)">
+					<div class="text">
+						<i class="pull-right glyphicon glyphicon-chevron-right" ng-show="currentBook.name == book.name;"></i>
+				    <strong>{{book.name}}</strong>
+						<hr>
+					</div>
+				</li>
 			</div>
 		</div>
 		<div class="col-md-6 articles-list">

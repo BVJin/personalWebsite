@@ -6,7 +6,7 @@
 		<div>
 			<span id="titleWarning" >Title:</span>
 			<input type="text" ng-model="articleObj.title" class="form-control">
-			<div ng-show="ifWarning" class="blog-warning">Please input a title at least, you lazy fucker!</div>
+			<div ng-show="warning.ifTitleWarning" class="blog-warning">Please input a title at least, you lazy fucker!</div>
 		</div>
 		<div class="text-angular">
 		Content:
@@ -21,24 +21,24 @@
 	</div>
 
 	<!-- Select book -->
-	<div class="books-dropdown-wrapper">
+	<div ng-show="!ifPreview" class="books-dropdown-wrapper">
 		<span class="pull-left">Select a book: &nbsp;</span>
 		<select class="pull-left col-xs-12 col-md-2"
-						ng-model="userCountryName"
-						ng-options="country for country in countries track by country"
-						ng-change="loadScheduleOfCountry(userCountryName)">
+						ng-model="selectedBook"
+						ng-options="book.name for book in books track by book._id">
 	  </select>
 
 		<!-- Create book -->
 		&nbsp;
-		<button uib-popover-template="'myPopoverTemplate.html'" popover-title=" :D " type="button" class="bv-btn blog-btn">Create a book</button>
+		<button uib-popover-template="'myPopoverTemplate.html'" popover-is-open="isPopoverOpen" popover-title=" :D " popover-trigger="outsideClick" type="button" class="bv-btn blog-btn">Create a book</button>
 
 	 	<script type="text/ng-template" id="myPopoverTemplate.html">
 			 	<div class="form-group">
 				 	<label>Book Name:</label>
-				 	<input type="text" ng-model="dynamicPopover.title" class="form-control">
+				 	<input type="text" ng-model="bookObj.name" class="form-control">
+					<p ng-if="warning.ifBookWarning" class="blog-warning">Name exists or is blank :( </p>
 					<div class="">
-						<span class="bv-btn popover-create-btn">Create</span>
+						<span class="bv-btn popover-create-btn" ng-click="createBook()">Create</span>
 					</div>
 			 	</div>
 	 	</script>
@@ -46,9 +46,9 @@
 
 	<!-- bottom buttons -->
 	<div class="bottom-btns">
-		<button type="button" class='btn btn-default' ng-click="articleObj.title?submitArticle(): noTitle()">Submit</button>
+		<button type="button" class='bv-btn' ng-click="articleObj.title?submitArticle(): noTitle()">Submit</button>
 		&nbsp;&nbsp;
-		<button ng-show="!ifPreview" type="button" class='btn btn-default' ng-click="articleObj.title?ifPreview = !ifPreview : noTitle()">Preview</button>
-		<button ng-show="ifPreview" type="button" class='btn btn-default' ng-click="ifPreview = !ifPreview; ifWarning = false">Back</button>
+		<button ng-show="!ifPreview" type="button" class='bv-btn' ng-click="articleObj.title?ifPreview = !ifPreview : noTitle()">Preview</button>
+		<button ng-show="ifPreview" type="button" class='bv-btn' ng-click="ifPreview = !ifPreview; warning.ifTitleWarning = false">Back</button>
 	</div>
 </section>

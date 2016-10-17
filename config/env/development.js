@@ -3,7 +3,7 @@
 module.exports = {
 	db: 'mongodb://localhost/bvnonesuch-dev',
 	app: {
-		title: 'bvnonesuch - Development Environment'
+		title: 'BV'
 	},
 	facebook: {
 		clientID: process.env.FACEBOOK_ID || 'APP_ID',
