@@ -46,17 +46,13 @@ exports.signup = function(req, res) {
 							var token = jwt.sign(user, config.constant.secretKey, {
 								expiresIn: parseInt(config.constant.tokenExpriation)
 							});
-							user.apiAuthToken = token;
 							return false;
 						}
 						return true;
 					});
-					// return the information including token as JSON
-	        res.json({
-	          success: true,
-	          message: 'Enjoy your token!',
-	          token: user.apiAuthToken
-	        });
+					//Angular prevent CSRF
+					//res.cookie('XSRF-TOKEN', token);
+	        res.json(user);
 				}
 			});
 		}
@@ -79,19 +75,19 @@ exports.signin = function(req, res, next) {
 				if (err) {
 					res.status(400).send(err);
 				} else {
-					var updatedUser = JSON.parse(JSON.stringify(user));
 					//Assign auth token to admin user
+					var token = "";
 					config.constant.authorizedRoles.every(function(role){
-						if(updatedUser.roles.indexOf(role) > - 1){
-							var token = jwt.sign(user, config.constant.secretKey, {
+						if(user.roles.indexOf(role) > - 1){
+							token = jwt.sign(user, config.constant.secretKey, {
 								expiresIn: parseInt(config.constant.tokenExpriation)
 							});
-							updatedUser.apiAuthToken = token;
 							return false;
 						}
 						return true;
 					});
-					res.json(updatedUser);
+					//Angular prevent CSRF
+					res.cookie('XSRF-TOKEN', token).json(user);
 				}
 			});
 		}

@@ -40,7 +40,8 @@ module.exports = {
 				'public/lib/ngSweetAlert/SweetAlert.min.js',
 				'public/lib/sweetalert/dist/sweetalert.min.js',
 				'public/lib/spin.js/spin.js',
-				'public/lib/angular-spinner/angular-spinner.js'
+				'public/lib/angular-spinner/angular-spinner.js',
+				'https://cdnjs.cloudflare.com/ajax/libs/ngStorage/0.3.6/ngStorage.min.js'
 			]
 		},
 		css: [
