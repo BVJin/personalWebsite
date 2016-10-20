@@ -50,9 +50,9 @@ exports.signup = function(req, res) {
 						}
 						return true;
 					});
+
 					//Angular prevent CSRF
-					//res.cookie('XSRF-TOKEN', token);
-	        res.json(user);
+					res.cookie('XSRF-TOKEN', token, { httpOnly: true }).json(user);
 				}
 			});
 		}
@@ -86,8 +86,14 @@ exports.signin = function(req, res, next) {
 						}
 						return true;
 					});
+					//remeber user login
+					if(req.body.ifRemeber){
+						req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // stay sign in for 30 days
+					}else{
+						req.session.cookie.expires = false;
+					}
 					//Angular prevent CSRF
-					res.cookie('XSRF-TOKEN', token).json(user);
+					res.cookie('XSRF-TOKEN', token, { httpOnly: true }).json(user);
 				}
 			});
 		}

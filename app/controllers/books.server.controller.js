@@ -49,13 +49,27 @@ exports.delete = function(req, res) {
  * List of Books
  */
 exports.list = function(req, res) {
-  Book.find().exec(function(err, books){
-    if(err){
-      return res.status(400).send({
-        message: errorHandler.getErrorMessage(err)
-      })
-    }else{
-      res.json(books);
-    }
-  })
+  //list all book
+  if(!req.query.bookId){
+    Book.find().exec(function(err, books){
+      if(err){
+        return res.status(400).send({
+          message: errorHandler.getErrorMessage(err)
+        })
+      }else{
+        res.json(books);
+      }
+    })
+  //list one book
+  }else{
+    Book.findOne({bookId: req.query.bookId}).exec(function(err, book){
+      if(err){
+        return res.status(400).send({
+          message: errorHandler.getErrorMessage(err)
+        })
+      }else{
+        res.json(book);
+      }
+    })
+  }
 };

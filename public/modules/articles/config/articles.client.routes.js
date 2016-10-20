@@ -6,7 +6,7 @@ angular.module('articles').config(['$stateProvider',
 		// Articles state routing
 		$stateProvider
 		.state('articles', {
-			url: '/articles',
+			url: '/articles?bookId&articleId',
 			templateUrl: 'modules/articles/views/articles.client.view.html'
 		});
 	}

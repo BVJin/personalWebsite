@@ -1,13 +1,14 @@
 <meta name="viewport" content="width=device-width" />
 <section data-ng-controller="ArticlesController">
-	<div class="row content-list">
+	<!--list book regular view -->
+	<div ng-if="!ifArticle" class="row content-list">
 		<div class="col-md-6 books-list">
 			<span us-spinner="{radius:10, width:8, length: 16, color:'#87CEFA'}" spinner-on="loading.book"></span>
 			<div ng-if="!loading.book" class="list-group booksList-frame">
-				<li class="list-group-item book-item"  ng-repeat="book in books track by book._id" ng-class="{ selectedBook : currentBook.name == book.name}" ng-click="pickBook(book)">
+				<li class="list-group-item book-item"  ng-repeat="book in books | orderBy : 'created' track by book._id" ng-class="{ selectedBook : currentBook.name == book.name}" ng-click="pickBook(book)">
 					<div class="text">
 						<i class="pull-right glyphicon glyphicon-chevron-right" ng-show="currentBook.name == book.name;"></i>
-				    <strong>{{book.name}}</strong>
+				    <strong>{{book.name}}</strong><i class="time-tag">Created at {{book.created | date : 'MM/dd/yyyy'}}</i>
 						<hr>
 					</div>
 				</li>
@@ -15,16 +16,24 @@
 		</div>
 		<div class="col-md-6 articles-list">
 			<div class="list-group">
-			  <a class="list-group-item">
-			    <span class="article-title">第一章</span>
+			  <a class="list-group-item" ng-repeat="article in articles | orderBy:'created' track by article._id " ng-href="/#!/articles?articleId={{article.articleId}}">
+			    <span class="article-title">{{article.title}}</span>
 					<!-- <span class="article-author">Author: BV</span> -->
-					<span class="article-date">02/25/2016</span>
+					<span class="article-date">{{article.created | date : 'MM/dd/yyyy'}}</span>
 			  </a>
-			  <a class="list-group-item">Dapibus ac facilisis in</a>
-			  <a class="list-group-item">Morbi leo risus</a>
-			  <a class="list-group-item">Porta ac consectetur ac</a>
-			  <a class="list-group-item">Vestibulum at eros</a>
 			</div>
 		</div>
 	</div>
+
+	<!--present article view-->
+	<div ng-if="ifArticle" class="row content-list">
+
+		<div class="editor-wrapper">
+			<div class="preview-title" ng-bind-html="article.title"></div>
+			<!--Tag for Book and time-->
+			<div class="article-tag">Book: <a ng-href="/#!/articles?bookId={{book.bookId}}">{{book.name}}</a> | Create at: {{article.created | date : 'MM/dd/yyyy'}}</div>
+			<div ng-bind-html="article.content" style="margin-top: 30px"></div>
+		</div>
+	</div>
+
 </section>

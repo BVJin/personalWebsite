@@ -11,7 +11,6 @@ var mongoose = require('mongoose'),
  */
 var BookSchema = new Schema({
 	// Book model fields
-	// property name
 	bookId: {
 			type: Number,
 			unique: true

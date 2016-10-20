@@ -27,7 +27,14 @@ angular.module('blog').controller('BlogController', ['$scope', '$anchorScroll', 
 		deployBookSelect();
 
 		$scope.submitArticle = function(){
-			console.log($scope.articleObj);
+
+			$scope.articleObj.bookId = $scope.selectedBook.bookId
+			blogSvc.createArticle($scope.articleObj).then(function(data){
+				//update UI
+				$scope.submitSuccess = true;
+			}, function(err){
+				console.log(err);
+			});
 		}
 
 		//if preview/submit article without Title

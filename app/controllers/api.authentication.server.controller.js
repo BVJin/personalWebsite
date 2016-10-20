@@ -13,7 +13,7 @@ exports.isAuthenticated = function(req, res, next){
   req.headers['X-XSRF-TOKEN'] = req.cookies['XSRF-TOKEN'];
 
   // check header or url parameters or post parameters for token
-  var token = req.body.apiAuthToken || req.query.apiAuthToken || req.headers['x-xsrf-token'];
+  var token = req.body.apiAuthToken || req.query.apiAuthToken || req.headers['X-XSRF-TOKEN'] || req.headers['x-xsrf-token'] ; //lower case for post man
 
   // decode token
   if (token) {

@@ -1,8 +1,8 @@
 <section data-ng-controller="BlogController">
-	<div><strong>Welcome back, my master ! :D</strong></div>
-
+	<div ng-if="!submitSuccess"><strong>Welcome back, my master ! :D</strong></div>
+	<div ng-if="submitSuccess"><strong>Well done, my master ! :D</strong></div>
 	<!-- Editor -->
-	<div class="editor-wrapper" ng-show="!ifPreview" >
+	<div class="editor-wrapper" ng-show="!ifPreview && !submitSuccess" >
 		<div>
 			<span id="titleWarning" >Title:</span>
 			<input type="text" ng-model="articleObj.title" class="form-control">
@@ -15,13 +15,13 @@
 	</div>
 
 	<!-- Preview -->
-	<div ng-show="ifPreview" class="editor-wrapper">
+	<div ng-show="ifPreview || submitSuccess" class="editor-wrapper">
 		<div class="preview-title" ng-bind-html="articleObj.title"></div>
 		<div ng-bind-html="articleObj.content"></div>
 	</div>
 
 	<!-- Select book -->
-	<div ng-show="!ifPreview" class="books-dropdown-wrapper">
+	<div ng-show="!ifPreview && !submitSuccess" class="books-dropdown-wrapper">
 		<span class="pull-left">Select a book: &nbsp;</span>
 		<select class="pull-left col-xs-12 col-md-2"
 						ng-model="selectedBook"
@@ -45,10 +45,17 @@
 	</div>
 
 	<!-- bottom buttons -->
-	<div class="bottom-btns">
-		<button type="button" class='bv-btn' ng-click="articleObj.title?submitArticle(): noTitle()">Submit</button>
+	<!-- before submit-->
+	<div ng-if="!submitSuccess" class="bottom-btns">
+		<span type="button" class='bv-btn' ng-click="articleObj.title?submitArticle(): noTitle()">Submit</span>
 		&nbsp;&nbsp;
 		<button ng-show="!ifPreview" type="button" class='bv-btn' ng-click="articleObj.title?ifPreview = !ifPreview : noTitle()">Preview</button>
 		<button ng-show="ifPreview" type="button" class='bv-btn' ng-click="ifPreview = !ifPreview; warning.ifTitleWarning = false">Back</button>
+	</div>
+	<!-- after submit-->
+	<div ng-if="submitSuccess" class="bottom-btns">
+		<span type="button" class='bv-btn' ui-sref="blog">One More !</span>
+		&nbsp;&nbsp;
+		<button type="button" class='bv-btn' ui-sref="articles">Scibble Maker -></button>
 	</div>
 </section>

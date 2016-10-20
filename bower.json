@@ -16,7 +16,8 @@
     "angular-ui-router": "~0.2.11",
     "textAngular": "^1.5.10",
     "ngSweetAlert": "angular-sweetalert#~1.1.1",
-    "ngstorage": "^0.3.11"
+    "ngstorage": "^0.3.11",
+    "moment": "^2.15.1"
   },
   "devDependencies": {
     "bootstrap-social": "^5.0.0",
