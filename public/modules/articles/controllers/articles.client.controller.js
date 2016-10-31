@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('articles').controller('ArticlesController', ['$scope', '$filter', "NgTableParams", "BlogService", "ArticlesService", '$stateParams',
-	function($scope, $filter, NgTableParams, blogSvc, articlesSvc, $stateParams) {
+angular.module('articles').controller('ArticlesController', ['$scope', '$filter', "NgTableParams", "BlogService", "ArticlesService", '$stateParams', '$state',
+	function($scope, $filter, NgTableParams, blogSvc, articlesSvc, $stateParams, $state) {
 		//for loading content spinner
 		$scope.loading = {};
 
@@ -48,7 +48,7 @@ angular.module('articles').controller('ArticlesController', ['$scope', '$filter'
 			})
 		}
 
-		//
+		//update article
 		function updateArticles(){
 				$scope.loading.articles = true;
 				articlesSvc.listArticleByBook($scope.currentBook.bookId).$promise.then(function(data){
@@ -60,18 +60,22 @@ angular.module('articles').controller('ArticlesController', ['$scope', '$filter'
 		}
 
 
-
+		//pick book
 		$scope.pickBook = function(book){
 			//update CSS and var
 			$scope.currentBook = book;
+
+			//change url
+			$state.transitionTo('articles', {bookId: book.bookId}, {
+		    location: true,
+		    inherit: true,
+		    relative: $state.$current,
+		    notify: false
+			})
+
 			//update articles list
 			updateArticles();
 		}
 
-
-
-		$scope.test = function(){
-			console.log($scope.currentBook);
-		}
 	}
 ]);

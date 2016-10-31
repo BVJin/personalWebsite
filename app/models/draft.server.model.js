@@ -11,12 +11,17 @@ var mongoose = require('mongoose'),
  */
 var DraftSchema = new Schema({
 	// Draft model fields
-	articleId: {
-			type: Number,
+	userId: {
+			type: String,
 			unique: true
 	},
 
 	created: {
+			type: Date,
+			default: Date.now
+	},
+
+	modified: {
 			type: Date,
 			default: Date.now
 	},

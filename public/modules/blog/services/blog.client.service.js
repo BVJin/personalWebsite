@@ -2,7 +2,9 @@
 
 angular.module('blog').service('BlogService', ['$resource', '$q',
 	function($resource, $q) {
-
+		/**
+		 * Book part
+		 */
     //Create Book
     this.createBook = function(bookInfo){
 
@@ -58,6 +60,30 @@ angular.module('blog').service('BlogService', ['$resource', '$q',
 
 			})
 			return deferred.promise;
+		}
+
+		/**
+		 * Draft part
+		 */
+		this.createDraft = function(draftInfo){
+			var url = "/drafts";
+			return $resource(url).save(draftInfo).$promise.then(function(data){
+				//create draft successfully
+			}, function(err){
+				console.log(err);
+			});
+		}
+
+		this.updateDraft = function(draftInfo){
+			var url = "/drafts";
+			return $resource(url, draftInfo, {
+				'update': {method: 'PUT'}
+			});
+		}
+
+		this.getDraft = function(userId){
+			var url = "/drafts?userId=" + userId;
+			return $resource(url).get();
 		}
 
 	}

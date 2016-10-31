@@ -7,7 +7,7 @@ module.exports = {
 	},
 	constant: {
 		authorizedRoles: ['admin'],
-		tokenExpriation: 60 * 60 * 48,
+		tokenExpriation: 60 * 60 * 24 * 30,
 		secretKey: 'bvnonesuch'
 	},
 	facebook: {
