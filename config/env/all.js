@@ -52,6 +52,8 @@ module.exports = {
 			'public/config.js',
 			'public/application.js',
 			'public/modules/*/*.js',
+			'public/services/services.client.js',
+			'public/services/*/*.js',
 			'public/modules/*/*[!tests]*/*.js'
 		],
 		tests: [
