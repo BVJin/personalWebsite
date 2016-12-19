@@ -8,6 +8,7 @@ var _ = require('lodash'),
 	mongoose = require('mongoose'),
 	passport = require('passport'),
 	jwt = require('jsonwebtoken'),
+	crypto = require('crypto'),
 	User = mongoose.model('User'),
 	config = require.main.require('./config/env/development');
 
@@ -51,8 +52,12 @@ exports.signup = function(req, res) {
 						return true;
 					});
 
+					var xsrfToken = crypto.randomBytes(64).toString('hex');
+					req.session.xsrfToken = xsrfToken;
 					//Angular prevent CSRF
-					res.cookie('XSRF-TOKEN', token, { httpOnly: true }).json(user);
+					res.cookie('ACCESS-TOKEN', token, { httpOnly: true });
+					res.cookie('XSRF-TOKEN', xsrfToken);
+					res.json(user);
 				}
 			});
 		}
@@ -92,8 +97,12 @@ exports.signin = function(req, res, next) {
 					}else{
 						req.session.cookie.expires = false;
 					}
+					var xsrfToken = crypto.randomBytes(64).toString('hex');
+					req.session.xsrfToken = xsrfToken;
 					//Angular prevent CSRF
-					res.cookie('XSRF-TOKEN', token, { httpOnly: true }).json(user);
+					res.cookie('ACCESS-TOKEN', token, { httpOnly: true });
+					res.cookie('XSRF-TOKEN', xsrfToken);
+					res.json(user);
 				}
 			});
 		}

@@ -4,9 +4,12 @@
 angular.module(ApplicationConfiguration.applicationModuleName, ApplicationConfiguration.applicationModuleVendorDependencies);
 
 // Setting HTML5 Location Mode
-angular.module(ApplicationConfiguration.applicationModuleName).config(['$locationProvider',
-	function($locationProvider) {
+angular.module(ApplicationConfiguration.applicationModuleName).config(['$locationProvider','$httpProvider',
+	function($locationProvider,$httpProvider) {
 		$locationProvider.hashPrefix('!');
+
+		//withCredentials = true will include cookie to header
+		$httpProvider.defaults.withCredentials = true;
 	}
 ]);
 
