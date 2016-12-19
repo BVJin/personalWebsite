@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('blog').controller('BlogController', ['$scope', '$anchorScroll', '$location', '$q', '$filter', 'BlogService', 'Authentication', '$interval',
-	function($scope, $anchorScroll, $location, $q, $filter, blogSvc, Authentication, $interval) {
+angular.module('blog').controller('BlogController', ['$scope', '$anchorScroll', '$location', '$q', '$filter', 'BlogService', 'Authentication', '$interval', '$state','$stateParams',
+	function($scope, $anchorScroll, $location, $q, $filter, blogSvc, Authentication, $interval, $state, $stateParams) {
 		/**
 			* Variables
 			*/
@@ -18,6 +18,9 @@ angular.module('blog').controller('BlogController', ['$scope', '$anchorScroll', 
 		//control popover
 		$scope.isPopoverOpen = false;
 
+		var ifEdit = $stateParams.edit;
+
+		console.log($stateParams);
 		/**
 			* Deployment
 			*/
@@ -27,7 +30,10 @@ angular.module('blog').controller('BlogController', ['$scope', '$anchorScroll', 
 			blogSvc.listBook().$promise.then(function(data){
 				$scope.books = data;
 				//set default book as Misc
-				$scope.selectedBook = $filter('filter')(data, {name:"Misc"}, true)[0];
+				if(!ifEdit)
+					$scope.selectedBook = $filter('filter')(data, {name:"Misc"}, true)[0];
+				else
+					$scope.selectedBook = $filter('filter')(data, {name:$stateParams.book.name}, true)[0];
 				deferred.resolve(data);
 			}, function(err){
 				deferred.reject("It is a dead game");
@@ -49,21 +55,37 @@ angular.module('blog').controller('BlogController', ['$scope', '$anchorScroll', 
 				console.log(err);
 			})
 		}
+
 		deployBookSelect();
-		loadDraft();
+
+		if(!ifEdit)
+			loadDraft();
+		else
+			$scope.articleObj = $stateParams.article;
 
 		/**
 			* Functions
 			*/
+		//if user select a new book, assuming they want to put this article to that new book
+		//so ask them if they want to delete the article at old book.
+		//if it is the same book, use put to update article infomation
 		$scope.submitArticle = function(){
+			$scope.articleObj.bookId = $scope.selectedBook.bookId;
+			if(!ifEdit || $stateParams.book.bookId != $scope.selectedBook.bookId){
+				//create article to nwew book
+				blogSvc.createArticle($scope.articleObj).then(function(data){
+					//pop up for asking if delete the article in old book
 
-			$scope.articleObj.bookId = $scope.selectedBook.bookId
-			blogSvc.createArticle($scope.articleObj).then(function(data){
-				//update UI
-				$scope.submitSuccess = true;
-			}, function(err){
-				console.log(err);
-			});
+					//update UI
+					$scope.submitSuccess = true;
+				}, function(err){
+					console.log('Creating article failed');
+					console.log(err);
+				});
+			}else{
+				//same book, using PUT to update
+			}
+
 		}
 
 		//if preview/submit article without Title

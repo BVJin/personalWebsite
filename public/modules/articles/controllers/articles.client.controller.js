@@ -1,11 +1,11 @@
 'use strict';
 
-angular.module('articles').controller('ArticlesController', ['$scope', '$filter', "NgTableParams", "BlogService", "ArticlesService", '$stateParams', '$state',
-	function($scope, $filter, NgTableParams, blogSvc, articlesSvc, $stateParams, $state) {
+angular.module('articles').controller('ArticlesController', ['$scope', '$filter', "NgTableParams", "BlogService", "ArticlesService", '$stateParams', '$state', 'Authentication',
+	function($scope, $filter, NgTableParams, blogSvc, articlesSvc, $stateParams, $state, Authentication) {
 		//for loading content spinner
 		$scope.loading = {};
 
-
+		$scope.user = Authentication.user;
 		//if has article ID in url, show the article
 		if($stateParams.articleId){
 			articlesSvc.listArticleById($stateParams.articleId).$promise.then(function(article){
@@ -75,7 +75,12 @@ angular.module('articles').controller('ArticlesController', ['$scope', '$filter'
 
 			//update articles list
 			updateArticles();
-		}
+		};
+
+		//Edit article
+		$scope.editArticle = function(book, article){
+			$state.go('blog', {edit: true, book: book, article: article});
+		};
 
 	}
 ]);

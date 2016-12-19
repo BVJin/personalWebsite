@@ -19,7 +19,7 @@
 			  <a class="list-group-item" ng-repeat="article in articles | orderBy:'created' track by article._id " ng-href="/#!/articles?articleId={{article.articleId}}">
 			    <span class="article-title">{{article.title}}</span>
 					<!-- <span class="article-author">Author: BV</span> -->
-					<span class="article-date">{{article.created | date : 'MM/dd/yyyy'}}</span>
+					<span class="article-date">{{article.created | date : 'MM/dd/yyyy HH:mm'}}</span>
 			  </a>
 			</div>
 		</div>
@@ -31,8 +31,23 @@
 		<div class="editor-wrapper">
 			<div class="preview-title" ng-bind-html="article.title"></div>
 			<!--Tag for Book and time-->
-			<div class="article-tag">Book: <a ng-href="/#!/articles?bookId={{book.bookId}}">{{book.name}}</a> | Create at: {{article.created | date : 'MM/dd/yyyy'}}</div>
+			<div class="article-tag">Book: <a ng-href="/#!/articles?bookId={{book.bookId}}">{{book.name}}</a> | Created at: {{article.created | date : 'MM/dd/yyyy HH:mm'}}</div>
 			<div ng-bind-html="article.content" style="margin-top: 30px"></div>
+			<br>
+			<div class="row">
+				<div class="pull-left text-muted">
+					0 people viewed&nbsp;&nbsp;
+				</div>
+				<div ng-if="user.isAdmin">
+					<div class="pull-left bv-font" ng-click="editArticle(book, article)">
+						Edit
+					</div>
+					<span class="pull-left">&nbsp;|&nbsp;</span>
+					<div class="pull-left bv-font">
+						Delete
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 
