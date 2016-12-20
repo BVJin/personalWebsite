@@ -20,7 +20,8 @@ module.exports = {
 				'public/lib/ng-table/dist/ng-table.min.css',
 				'public/lib/bootstrap-social/bootstrap-social.css',
 				'public/lib/textAngular/dist/textAngular.css',
-				'public/lib/sweetalert/dist/sweetalert.css'
+				'public/lib/sweetalert/dist/sweetalert.css',
+				'public/lib/angular-notify/dist/angular-notify.css'
 
 			],
 			js: [
@@ -41,6 +42,7 @@ module.exports = {
 				'public/lib/sweetalert/dist/sweetalert.min.js',
 				'public/lib/spin.js/spin.js',
 				'public/lib/angular-spinner/angular-spinner.js',
+				'public/lib/angular-notify/dist/angular-notify.js',
 				'https://cdnjs.cloudflare.com/ajax/libs/ngStorage/0.3.6/ngStorage.min.js'
 			]
 		},

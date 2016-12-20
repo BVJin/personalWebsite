@@ -17,6 +17,8 @@ angular.module('blog').controller('BlogController', ['$scope', '$anchorScroll', 
 		$scope.warning = {};
 		//control popover
 		$scope.isPopoverOpen = false;
+		//switch to preview and editor
+		$scope.flags = {};
 
 		var ifEdit = $stateParams.edit;
 
@@ -75,9 +77,9 @@ angular.module('blog').controller('BlogController', ['$scope', '$anchorScroll', 
 				//create article to nwew book
 				blogSvc.createArticle($scope.articleObj).then(function(data){
 					//pop up for asking if delete the article in old book
-
+					
 					//update UI
-					$scope.submitSuccess = true;
+					$scope.flags.submitSuccess = true;
 				}, function(err){
 					console.log('Creating article failed');
 					console.log(err);

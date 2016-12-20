@@ -1,8 +1,8 @@
 <section data-ng-controller="BlogController">
-	<div ng-if="!submitSuccess"><strong>Welcome back, my master ! :D</strong></div>
-	<div ng-if="submitSuccess"><strong>Well done, my master ! :D</strong></div>
+	<div ng-if="!flags.submitSuccess"><strong>Welcome back, my master ! :D</strong></div>
+	<div ng-if="flags.submitSuccess"><strong>Well done, my master ! :D</strong></div>
 	<!-- Editor -->
-	<div class="editor-wrapper" ng-show="!ifPreview && !submitSuccess" >
+	<div class="editor-wrapper" ng-show="!flags.ifPreview && !flags.submitSuccess" >
 		<div>
 			<span id="titleWarning" >Title:</span>
 			<input type="text" ng-model="articleObj.title" class="form-control">
@@ -10,18 +10,18 @@
 		</div>
 		<div class="text-angular">
 		Content:
-			<div text-angular ng-model="articleObj.content"></div>
+			<div text-angular ng-model="articleObj.content" class="shorten-lineHeight"></div>
 		</div>
 	</div>
 
 	<!-- Preview -->
-	<div ng-show="ifPreview || submitSuccess" class="editor-wrapper">
+	<div ng-show="flags.ifPreview || flags.submitSuccess" class="editor-wrapper">
 		<div class="preview-title" ng-bind-html="articleObj.title"></div>
-		<div ng-bind-html="articleObj.content"></div>
+		<div ng-bind-html="articleObj.content" class="shorten-lineHeight"></div>
 	</div>
 
 	<!-- Select book -->
-	<div ng-show="!ifPreview && !submitSuccess" class="books-dropdown-wrapper">
+	<div ng-show="!flags.ifPreview && !flags.submitSuccess" class="books-dropdown-wrapper">
 		<span class="pull-left">Select a book: &nbsp;</span>
 		<select class="pull-left col-xs-12 col-md-2"
 						ng-model="selectedBook"
@@ -46,14 +46,14 @@
 
 	<!-- bottom buttons -->
 	<!-- before submit-->
-	<div ng-if="!submitSuccess" class="bottom-btns">
+	<div ng-if="!flags.submitSuccess" class="bottom-btns">
 		<span type="button" class='bv-btn' ng-click="articleObj.title?submitArticle(): noTitle()">Submit</span>
 		&nbsp;&nbsp;
-		<button ng-show="!ifPreview" type="button" class='bv-btn' ng-click="articleObj.title?ifPreview = !ifPreview : noTitle()">Preview</button>
-		<button ng-show="ifPreview" type="button" class='bv-btn' ng-click="ifPreview = !ifPreview; warning.ifTitleWarning = false">Back</button>
+		<button ng-show="!flags.ifPreview" type="button" class='bv-btn' ng-click="articleObj.title?flags.ifPreview = !flags.ifPreview:noTitle()">Preview</button>
+		<button ng-show="flags.ifPreview" type="button" class='bv-btn' ng-click="flags.ifPreview = !flags.ifPreview; warning.ifTitleWarning = false">Back</button>
 	</div>
 	<!-- after submit-->
-	<div ng-if="submitSuccess" class="bottom-btns">
+	<div ng-if="flags.submitSuccess" class="bottom-btns">
 		<span type="button" class='bv-btn' ui-sref="blog">One More !</span>
 		&nbsp;&nbsp;
 		<button type="button" class='bv-btn' ui-sref="articles">Scibble Maker -></button>

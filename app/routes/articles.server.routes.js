@@ -9,9 +9,11 @@ module.exports = function(app) {
   app.route('/articles/listAll').get(articles.listAll);
   //list articles by book
   app.route('/articles/listByBook').get(articles.listByBookId);
-  //list articles by article
-  app.route('/articles/listByArticle').get(articles.listByArticleId);
+  //read article
+  app.route('/articles').get(articles.read);
   //create article
-	app.route('/articles/createArticle').post(api_auth.isAuthenticated, articles.create);
+	app.route('/articles').post(api_auth.isAuthenticated, articles.create);
+  //delete article
+  app.route('/articles').delete(api_auth.isAuthenticated, articles.delete);
 
 };
