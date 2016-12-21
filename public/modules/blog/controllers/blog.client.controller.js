@@ -145,6 +145,7 @@ angular.module('blog').controller('BlogController', ['$scope', '$anchorScroll', 
 			 $scope.articleObj = $stateParams.article;
 		};
 
+		//this flag for refire the event which has been preventDefault
 		var ifLeave = false;
 		$scope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams){
 			if($scope.articleObj.title != '' || $scope.articleObj.content != ''){
@@ -154,7 +155,7 @@ angular.module('blog').controller('BlogController', ['$scope', '$anchorScroll', 
 					 animation: true,
 					 controller: '',
 					 template:  //'<div class="container">'
-					 							'<div style="width:100%;height:90px;line-height: 90px;"><h4 class="text-center bv-font" style="margin-top: 40px;">Are you sure that you want to delete this post?</h4></div>'
+					 							'<div style="width:100%;height:90px;line-height: 90px;"><h4 class="text-center bv-font" style="margin-top: 40px;">You will lose your creation, are you sure you want to leave this page?</h4></div>'
 		                    +'<div class="row" style="margin-bottom:10px">'
 		                    	+'<button type="button" class="col-md-2 btn bv-btn pull-right" style="margin-right: 20px; width:16.7%;" ng-click="stay()">No</button>'
 													+'<button type="button" class="col-md-2 btn bv-btn pull-right" style="margin-right: 20px; width:16.7%;" ng-click="leave()">Yes</button>'
