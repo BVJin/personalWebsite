@@ -39,7 +39,7 @@ angular.module('blog').service('BlogService', ['$resource', '$q',
 
 		//create article
 		this.createArticle = function(articleInfo){
-			var create_url = "/articles/createArticle";
+			var create_url = "/articles";
 			var list_url = "/articles/listAll";
 
 			var deferred = $q.defer();
@@ -60,6 +60,14 @@ angular.module('blog').service('BlogService', ['$resource', '$q',
 
 			})
 			return deferred.promise;
+		}
+
+		//update article
+		this.updateArticles = function(articleInfo){
+			var url = "/articles";
+			return $resource(url, articleInfo, {
+				'update': {method: 'PUT'}
+			});
 		}
 
 		/**

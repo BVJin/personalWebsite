@@ -7,7 +7,12 @@ angular.module('blog').config(['$stateProvider',
 		$stateProvider.
 		state('blog', {
 			url: '/blog',
-			templateUrl: 'modules/blog/views/blog.client.view.html'
+			templateUrl: 'modules/blog/views/blog.client.view.html',
+			params:{
+				edit: false,
+				book: null,
+				article: null
+			}
 		});
 	}
 ]);

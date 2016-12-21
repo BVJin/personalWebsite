@@ -9,14 +9,19 @@ angular.module('articles').service('ArticlesService', ['$resource', '$q',
     };
 
     this.listArticleById = function(articleId){
-      var url = "/articles/listByArticle?articleId=" + articleId;
+      var url = "/articles?articleId=" + articleId;
       return $resource(url).get();
     };
 
 		this.listBookById = function(bookId){
 			var url = "/books?bookId=" + bookId;
 			return $resource(url).get();
-		}
+		};
+
+		this.deleteArticleById = function(articleId){
+			var url = "/articles?articleId=" + articleId;
+      return $resource(url).delete();
+		};
 
 	}
 ]);

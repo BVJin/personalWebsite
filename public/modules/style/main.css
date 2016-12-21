@@ -8,3 +8,19 @@
   border-radius: 4px;
   border: 1px solid #87CEFA;
 }
+
+.bv-font{
+  color: #87CEFA;
+}
+
+.text-btn{
+  cursor: pointer;
+}
+
+.bot-center-bot{
+  position: absolute;
+  bottom: 0;
+  left: 25%;
+  right: 25%;
+  width: 100%;
+}
