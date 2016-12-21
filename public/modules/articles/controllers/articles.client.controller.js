@@ -112,6 +112,7 @@ angular.module('articles').controller('ArticlesController', ['$scope', '$filter'
 					modalInstance.close();
  				}, function(err){
 					notifySvc.error(err.message);
+					modalInstance.close();
 					console.log(err);
  				});
 			};

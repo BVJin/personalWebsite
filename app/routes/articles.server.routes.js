@@ -10,10 +10,10 @@ module.exports = function(app) {
   //list articles by book
   app.route('/articles/listByBook').get(articles.listByBookId);
   //read article
-  app.route('/articles').get(articles.read);
-  //create article
-	app.route('/articles').post(api_auth.isAuthenticated, articles.create);
-  //delete article
-  app.route('/articles').delete(api_auth.isAuthenticated, articles.delete);
+  app.route('/articles')
+    .get(articles.read)
+    .post(api_auth.isAuthenticated, articles.create)
+    .put(api_auth.isAuthenticated, articles.update)
+    .delete(api_auth.isAuthenticated, articles.delete);
 
 };

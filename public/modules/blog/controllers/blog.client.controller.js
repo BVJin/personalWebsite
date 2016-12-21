@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('blog').controller('BlogController', ['$scope', '$anchorScroll', '$location', '$q', '$filter', 'BlogService', 'Authentication', '$interval', '$state','$stateParams',
-	function($scope, $anchorScroll, $location, $q, $filter, blogSvc, Authentication, $interval, $state, $stateParams) {
+angular.module('blog').controller('BlogController', ['$scope', '$anchorScroll', '$location', '$q', '$filter', '$uibModal', 'BlogService', 'notifySvc', 'Authentication', '$interval', '$state', '$stateParams',
+	function($scope, $anchorScroll, $location, $q, $filter, $uibModal, blogSvc, notifySvc, Authentication, $interval, $state, $stateParams) {
 		/**
 			* Variables
 			*/
@@ -10,13 +10,14 @@ angular.module('blog').controller('BlogController', ['$scope', '$anchorScroll', 
 		//book object
 		$scope.bookObj = {};
 		//article object
-		$scope.articleObj = {};
+		$scope.articleObj = {
+			"title":'',
+			"content":''
+		};
 		//draft object
 		$scope.draftObj = {};
 		//warning message show/hide in the page
 		$scope.warning = {};
-		//control popover
-		$scope.isPopoverOpen = false;
 		//switch to preview and editor
 		$scope.flags = {};
 
@@ -58,34 +59,38 @@ angular.module('blog').controller('BlogController', ['$scope', '$anchorScroll', 
 			})
 		}
 
-		deployBookSelect();
-
-		if(!ifEdit)
-			loadDraft();
-		else
-			$scope.articleObj = $stateParams.article;
 
 		/**
 			* Functions
 			*/
+
 		//if user select a new book, assuming they want to put this article to that new book
-		//so ask them if they want to delete the article at old book.
 		//if it is the same book, use put to update article infomation
 		$scope.submitArticle = function(){
 			$scope.articleObj.bookId = $scope.selectedBook.bookId;
 			if(!ifEdit || $stateParams.book.bookId != $scope.selectedBook.bookId){
+				//remove _id and _v
+				var reqData = {
+					"bookId": $scope.articleObj.bookId,
+					"title": $scope.articleObj.title,
+					"content": $scope.articleObj.content
+				}
 				//create article to nwew book
-				blogSvc.createArticle($scope.articleObj).then(function(data){
-					//pop up for asking if delete the article in old book
-					
+				blogSvc.createArticle(reqData).then(function(data){
 					//update UI
 					$scope.flags.submitSuccess = true;
 				}, function(err){
-					console.log('Creating article failed');
+					notifySvc.error(err.data.message);
 					console.log(err);
 				});
 			}else{
 				//same book, using PUT to update
+				blogSvc.updateArticles($scope.articleObj).update($scope.articleObj).$promise.then(function(){
+					$scope.flags.submitSuccess = true;
+				}, function(err){
+					notifySvc.error(err.message);
+					console.log(err);
+				});
 			}
 
 		}
@@ -105,7 +110,7 @@ angular.module('blog').controller('BlogController', ['$scope', '$anchorScroll', 
 					//set the select to the created book
 					$scope.selectedBook = data;
 					//close popover
-					$scope.isPopoverOpen = false;
+					$scope.flags.isPopoverOpen = false;
 				}, function(err){
 					console.log(err);
 				});
@@ -123,6 +128,57 @@ angular.module('blog').controller('BlogController', ['$scope', '$anchorScroll', 
 			$scope.draftObj.title = $scope.articleObj.title;
 			blogSvc.updateDraft($scope.draftObj).update($scope.draftObj);
 		}, 1000*100)
+
+
+
+
+
+		////////////////////////
+		/*
+		**Intialiazation
+		*/
+		deployBookSelect();
+		if(!ifEdit){
+			loadDraft();
+		}else{
+			 $interval.cancel(autoSave);
+			 $scope.articleObj = $stateParams.article;
+		};
+
+		var ifLeave = false;
+		$scope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams){
+			if($scope.articleObj.title != '' || $scope.articleObj.content != ''){
+				if(!ifLeave)
+					event.preventDefault();
+				var modalInstance = $uibModal.open({
+					 animation: true,
+					 controller: '',
+					 template:  //'<div class="container">'
+					 							'<div style="width:100%;height:90px;line-height: 90px;"><h4 class="text-center bv-font" style="margin-top: 40px;">Are you sure that you want to delete this post?</h4></div>'
+		                    +'<div class="row" style="margin-bottom:10px">'
+		                    	+'<button type="button" class="col-md-2 btn bv-btn pull-right" style="margin-right: 20px; width:16.7%;" ng-click="stay()">No</button>'
+													+'<button type="button" class="col-md-2 btn bv-btn pull-right" style="margin-right: 20px; width:16.7%;" ng-click="leave()">Yes</button>'
+												+'</div>',
+											//+'</div>',
+					 scope: $scope,
+					 size: 'md',
+					 resolve: {
+
+					 }
+				 });
+
+				 $scope.leave = function(){
+					 modalInstance.close();
+					 ifLeave = true;
+					 $state.go(toState.name, toParams);
+
+				 };
+
+				 $scope.stay = function(){
+					 modalInstance.close();
+				 };
+			}
+ 		});
 
 	}
 ]);

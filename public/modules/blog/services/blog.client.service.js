@@ -62,6 +62,14 @@ angular.module('blog').service('BlogService', ['$resource', '$q',
 			return deferred.promise;
 		}
 
+		//update article
+		this.updateArticles = function(articleInfo){
+			var url = "/articles";
+			return $resource(url, articleInfo, {
+				'update': {method: 'PUT'}
+			});
+		}
+
 		/**
 		 * Draft part
 		 */

@@ -49,7 +49,32 @@ exports.read = function(req, res) {
  * Update a Article
  */
 exports.update = function(req, res) {
-
+  if(req.query.articleId){
+    Article.findOne({articleId: req.query.articleId}).exec(function(err, article){
+      if(err){
+        return res.status(400).send({
+          message: errorHandler.getErrorMessage(err)
+        })
+      }else{
+        article.modified = new Date();
+        article.content = req.query.content;
+        article.title = req.query.title;
+        article.save(function(err){
+          if(err){
+            return res.status(400).send({
+              message: errorHandler.getErrorMessage(err)
+            })
+          }else{
+            res.status(200).json(article);
+          }
+        });
+      }
+    })
+  }else{
+    res.status(400).send({
+      message: "Article ID is required"
+    });
+  };
 };
 
 /**
