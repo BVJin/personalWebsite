@@ -23,7 +23,6 @@ angular.module('blog').controller('BlogController', ['$scope', '$anchorScroll', 
 
 		var ifEdit = $stateParams.edit;
 
-		console.log($stateParams);
 		/**
 			* Deployment
 			*/
