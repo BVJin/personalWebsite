@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('core').controller('HeaderController', ['$scope', 'Authentication', 'Menus', '$state', '$http','$window',
-	function($scope, Authentication, Menus, $state, $http, $window) {
+angular.module('core').controller('HeaderController', ['$scope', 'Authentication', 'Menus', '$state', '$stateParams' ,'$http','$window','$location',
+	function($scope, Authentication, Menus, $state, $stateParams, $http, $window, $location) {
 		$scope.authentication = Authentication;
 		$scope.isCollapsed = false;
 		$scope.menu = Menus.getMenu('topbar');
@@ -19,6 +19,10 @@ angular.module('core').controller('HeaderController', ['$scope', 'Authentication
 		}
 
 		$scope.goToPage = function(state){
+			//clean url
+			$location.search({});
+			//clean state parameters
+			Object.keys($stateParams).forEach(function(key){ delete $stateParams[key]});
 			$state.go(state, {}, { reload: true });
 		}
 		// Collapsing the menu after navigation

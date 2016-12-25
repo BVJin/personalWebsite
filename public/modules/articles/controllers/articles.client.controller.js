@@ -2,14 +2,36 @@
 
 angular.module('articles').controller('ArticlesController', ['$scope', '$filter', '$uibModal', '$location', 'BlogService', 'ArticlesService', 'notifySvc', '$stateParams', '$state', 'Authentication',
 	function($scope, $filter, $uibModal, $location, blogSvc, articlesSvc, notifySvc, $stateParams, $state, Authentication) {
+
+		//if url has bookId and articlet id at same time
+		//condisder this as wrong url, reload page without stateparams
+		if($stateParams.articleId && $stateParams.bookId){
+			$location.search({});
+			delete $stateParams.articleId;
+			delete $stateParams.bookId;
+			$state.go($state.current, {}, {reload: true});
+		};
+
+		//Disqus
+		$scope.disqusConfig = {
+	    'disqus_shortname': 'bvnonesuch-1',
+	    'disqus_identifier': 'temp null',
+	    'disqus_url': window.location.href
+	};
+
 		//for loading content spinner
 		$scope.loading = {};
-
+		$scope.flags = {
+			"ifDisqus": false
+		}
 		$scope.user = Authentication.user;
 		//if has article ID in url, show the article
 		if($stateParams.articleId){
 			articlesSvc.listArticleById($stateParams.articleId).$promise.then(function(article){
 				if(article.articleId > -1){
+					//Disqus setting
+					$scope.flags.ifDisqus = true;
+					$scope.disqusConfig.disqus_identifier = "article_" + $stateParams.articleId;
 					//deploy article
 					$scope.ifArticle = true;
 					$scope.article = article;

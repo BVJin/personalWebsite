@@ -26,6 +26,7 @@ module.exports = {
 			],
 			js: [
 				'public/lib/angular/angular.js',
+				'public/lib/jquery/dist/jquery.min.js',
 				'public/lib/angular-resource/angular-resource.js',
 				'public/lib/angular-cookies/angular-cookies.js',
 				'public/lib/angular-animate/angular-animate.js',
@@ -43,7 +44,8 @@ module.exports = {
 				'public/lib/spin.js/spin.js',
 				'public/lib/angular-spinner/angular-spinner.js',
 				'public/lib/angular-notify/dist/angular-notify.js',
-				'https://cdnjs.cloudflare.com/ajax/libs/ngStorage/0.3.6/ngStorage.min.js'
+				'https://cdnjs.cloudflare.com/ajax/libs/ngStorage/0.3.6/ngStorage.min.js',
+				'public/lib/angularUtils-disqus/dirDisqus.js'
 			]
 		},
 		css: [
