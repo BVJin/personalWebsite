@@ -4,8 +4,8 @@
 angular.module('users').factory('Authentication', [
 	function() {
 		var _this = this;
-
-		window.user.isAdmin = window.user.roles.indexOf('admin') > -1;
+		
+		window.user.isAdmin = window.user.roles?window.user.roles.indexOf('admin') > -1 : false;
 		_this._data = {
 			user: angular.copy(window.user)
 			//authToken: $localSotrage.authToken
