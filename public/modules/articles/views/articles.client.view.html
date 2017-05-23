@@ -52,4 +52,11 @@
 	</div>
 	<dir-disqus config="disqusConfig" ng-show="flags.ifDisqus"></dir-disqus>
 
+	<!--No article View-->
+	<div ng-if="!currentBook" class="row content-list">
+		<code>
+			<h2 class="text-center">This guy is just being lazy</h2>
+		</code>
+	</div>
+
 </section>
