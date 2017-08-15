@@ -21,11 +21,13 @@ module.exports = function() {
 					return done(err);
 				}
 				if (!user) {
+					console.log("No User Found");
 					return done(null, false, {
 						message: 'Unknown user or invalid password'
 					});
 				}
 				if (!user.authenticate(password)) {
+					console.log("Password is wrong");
 					return done(null, false, {
 						message: 'Unknown user or invalid password'
 					});

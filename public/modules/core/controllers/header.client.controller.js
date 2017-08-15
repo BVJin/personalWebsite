@@ -19,6 +19,7 @@ angular.module('core').controller('HeaderController', ['$scope', 'Authentication
 		}
 
 		$scope.goToPage = function(state){
+
 			//clean url
 			$location.search({});
 			//clean state parameters

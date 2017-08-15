@@ -45,7 +45,8 @@ module.exports = {
 				'public/lib/angular-spinner/angular-spinner.js',
 				'public/lib/angular-notify/dist/angular-notify.js',
 				'https://cdnjs.cloudflare.com/ajax/libs/ngStorage/0.3.6/ngStorage.min.js',
-				'public/lib/angularUtils-disqus/dirDisqus.js'
+				'public/lib/angularUtils-disqus/dirDisqus.js',
+				"https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.5.1/pixi.min.js"
 			]
 		},
 		css: [

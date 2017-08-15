@@ -17,7 +17,7 @@ angular.module('articles').controller('ArticlesController', ['$scope', '$filter'
 	    'disqus_shortname': 'bvnonesuch-1',
 	    'disqus_identifier': 'temp null',
 	    'disqus_url': window.location.href
-	};
+		};
 
 		//for loading content spinner
 		$scope.loading = {};
