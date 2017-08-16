@@ -1,10 +1,12 @@
 'use strict';
 
-angular.module('timekiller').controller('TimekillerController', ['$scope',
-	function($scope) {
+angular.module('timekiller').controller('TimekillerController', ['$scope', 'timekillerGame',
+	function( $scope, game ) {
 
 		var container = document.getElementById('game-container');
 
+		game.initGame(container);
+		/*
 		//Create the renderer
 		var renderer = PIXI.autoDetectRenderer(
 		  256, 256,
@@ -48,6 +50,7 @@ angular.module('timekiller').controller('TimekillerController', ['$scope',
 			stage.addChild(dog1);
 			renderer.render(stage);
 		};
+		*/
 
 	}
 ]);
