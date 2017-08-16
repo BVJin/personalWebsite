@@ -64,7 +64,8 @@ angular.module('articles').controller('ArticlesController', ['$scope', '$filter'
 					$scope.currentBook = $filter('filter')(data, {bookId: parseInt($stateParams.bookId)}, true)[0];
 				}
 				$scope.loading.book = false;
-				updateArticles();
+				if($scope.currentBook)
+					updateArticles();
 			}, function(err){
 				console.log(err);
 			})
