@@ -1,7 +1,7 @@
 'use strict';
 
 //Menu service used for managing  menus
-angular.module('timekiller').service('timekillerGame', [
+angular.module('timekiller').service('secondGameSvc', [
 
 	function() {
 
