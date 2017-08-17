@@ -33,22 +33,43 @@ angular.module('timekiller').service('timekillerGame', [
     function setup() {
 
       id = PIXI.loader.resources["modules/timekiller/images/walking-spritesheet.json"].textures;
+			//
+			// var background_road = new PIXI.Sprite(id["road-1.png"]).texture;
+			// var tilingSprite = new PIXI.extras.TilingSprite(background_road, renderer.width, renderer.height);
+			// tilingSprite.y = 100;
+			//
+			// stage.addChild(tilingSprite);
 
-      worker = new PIXI.Sprite(id["walking-1.png"]);
+      worker = new PIXI.Sprite(id["walking-right-1.png"]);
+			worker.y = 350;
       worker.vx = 0;
       worker.vy = 0;
+
       stage.addChild(worker);
 
-      var right = keyboard(39);
-
+      var right = keyboard(39),
+					left= keyboard(37);
       // right
       right.press = function() {
-        worker.vx = 5;
+        worker.vx = 5;;
         worker.vy = 0;
       };
 
       right.release = function() {
-        if ( worker.vy == 0 ) {
+        if ( worker.vy == 0 && !left.isDown) {
+            worker.vx = 0;
+        };
+
+      }
+
+			// left
+			left.press = function() {
+        worker.vx = -5;
+        worker.vy = 0;
+      };
+
+      left.release = function() {
+        if ( worker.vy == 0 && !right.isDown) {
             worker.vx = 0;
         };
 
@@ -68,13 +89,19 @@ angular.module('timekiller').service('timekillerGame', [
 
     function play() {
 
-      //Use the cat's velocity to make it move
       worker.x += worker.vx;
       // move to the right
-      if ( worker.vx > 0 && worker.x % 15 == 0 ) {
+      if ( worker.vx > 0 && worker.x % 25 == 0 ) {
         var walkingId = parseInt(worker.texture.textureCacheIds[0].charAt(worker.texture.textureCacheIds[0].length-5));
-        walkingId = walkingId == 3 ? 1 : walkingId + 1;
-        worker.texture = new PIXI.Sprite(id["walking-" + walkingId + ".png"]).texture;
+        walkingId = walkingId == 8 ? 1 : walkingId + 1;
+        worker.texture = new PIXI.Sprite(id["walking-right-" + walkingId + ".png"]).texture;
+      };
+
+			// move to the left
+			if ( worker.vx < 0 && worker.x % 25 == 0 ) {
+        var walkingId = parseInt(worker.texture.textureCacheIds[0].charAt(worker.texture.textureCacheIds[0].length-5));
+        walkingId = walkingId == 8 ? 1 : walkingId + 1;
+        worker.texture = new PIXI.Sprite(id["walking-left-" + walkingId + ".png"]).texture;
       };
 
       worker.y += worker.vy
