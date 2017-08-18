@@ -14,7 +14,7 @@ angular.module('timekiller').service('firGameSvc', [
         snake.x_v = snake.x_y = 0;
         grid_size = 60;
         tail_count = 15;
-        apple_x, apple_y = 10;
+        apple_x = apple_y = 10;
         trail = [];
         tail = 5;
 
@@ -59,8 +59,11 @@ angular.module('timekiller').service('firGameSvc', [
 
       // right
       right.press = function() {
-        snake.x_v = 1;
-        snake.x_y = 0;
+        if( left.isUp && snake.x_v != -1 ) {
+          snake.x_v = 1;
+          snake.x_y = 0;
+        };
+
       };
 
       right.release = function() {
@@ -71,8 +74,11 @@ angular.module('timekiller').service('firGameSvc', [
 
 			// left
 			left.press = function() {
-        snake.x_v = -1;
-        snake.x_y = 0;
+        if ( right.isUp && snake.x_v != 1 ) { 
+          snake.x_v = -1;
+          snake.x_y = 0;
+        };
+
       };
 
       left.release = function() {
@@ -83,8 +89,11 @@ angular.module('timekiller').service('firGameSvc', [
 
       // up
 			up.press = function() {
-        snake.x_v = 0;
-        snake.x_y = -1;
+        if ( down.isUp && snake.x_y != 1 ) { 
+          snake.x_v = 0;
+          snake.x_y = -1;
+        };
+
       };
 
       up.release = function() {
@@ -95,8 +104,11 @@ angular.module('timekiller').service('firGameSvc', [
 
       // up
 			down.press = function() {
-        snake.x_v = 0;
-        snake.x_y = 1;
+        if ( up.isUp && snake.x_y != -1 ) { 
+          snake.x_v = 0;
+          snake.x_y = 1;
+        };
+
       };
 
       down.release = function() {
@@ -111,7 +123,8 @@ angular.module('timekiller').service('firGameSvc', [
 
       gameLoop();
     };
-    var curSnake;
+
+    var curSnake, curApple;
 
     function gameLoop() {
       setTimeout(function() {
@@ -119,14 +132,18 @@ angular.module('timekiller').service('firGameSvc', [
       }, 1000 / 10)
       state();
       stage.addChild(curSnake);
+      stage.addChild(curApple)
       renderer.render(stage);
     }
 
     function play() {
 
       stage.removeChild(curSnake);
+      stage.removeChild(curApple);
       curSnake = new PIXI.Container();
+      curApple = new PIXI.Container();
       curSnake.removeChildren();
+      curApple.removeChildren();
 
       snake.snake_x += snake.x_v;
       snake.snake_y += snake.x_y;
@@ -171,6 +188,21 @@ angular.module('timekiller').service('firGameSvc', [
       while ( trail.length > tail ) {
         trail.shift();
       };
+
+      var apple = new PIXI.Sprite(id["snake-body.png"]);
+      // Apple
+      if ( apple_x == snake.snake_x && apple_y == snake.snake_y ) {
+        tail++;
+        apple_x = Math.floor(Math.random() * tail_count);
+        apple_y = Math.floor(Math.random() * tail_count);        
+      };
+
+      apple.width = 60;
+      apple.height = 60;
+      apple.position.set(apple_x * grid_size, apple_y  * grid_size);
+      curApple.addChild(apple);
+
+
     }
 
     function keyboard(keyCode) {
