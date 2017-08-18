@@ -10,17 +10,18 @@ angular.module('timekiller').service('firGameSvc', [
     var state;
     this.initGame = function (container) {
 
-        snake.snake_x = snake.snake_y = 15;
+        snake.snake_x = snake.snake_y = 20;
+				snake.head_direction = "right", snake.tail_direction = "right";
         snake.x_v = snake.x_y = 0;
-        grid_size = 60;
-        tail_count = 15;
+        grid_size = 30;
+        tail_count = 20;
         apple_x = apple_y = 10;
         trail = [];
         tail = 5;
 
         //Create the renderer
         renderer = PIXI.autoDetectRenderer(
-          900, 900,
+          600, 600,
           {antialias: false, transparent: false, resolution: 1}
         );
         renderer.view.style.border = "1px dashed black";
@@ -63,6 +64,7 @@ angular.module('timekiller').service('firGameSvc', [
         if( left.isUp && snake.x_v != -1 ) {
           snake.x_v = 1;
           snake.x_y = 0;
+					snake.head_direction = "right";
         };
 
       };
@@ -75,9 +77,10 @@ angular.module('timekiller').service('firGameSvc', [
 
 			// left
 			left.press = function() {
-        if ( right.isUp && snake.x_v != 1 ) { 
+        if ( right.isUp && snake.x_v != 1 ) {
           snake.x_v = -1;
           snake.x_y = 0;
+					snake.head_direction = "left";
         };
 
       };
@@ -90,9 +93,10 @@ angular.module('timekiller').service('firGameSvc', [
 
       // up
 			up.press = function() {
-        if ( down.isUp && snake.x_y != 1 ) { 
+        if ( down.isUp && snake.x_y != 1 ) {
           snake.x_v = 0;
           snake.x_y = -1;
+					snake.head_direction = "up";
         };
 
       };
@@ -105,9 +109,10 @@ angular.module('timekiller').service('firGameSvc', [
 
       // up
 			down.press = function() {
-        if ( up.isUp && snake.x_y != -1 ) { 
+        if ( up.isUp && snake.x_y != -1 ) {
           snake.x_v = 0;
           snake.x_y = 1;
+					snake.head_direction = "down";
         };
 
       };
@@ -171,22 +176,59 @@ angular.module('timekiller').service('firGameSvc', [
 
       for ( var i = 0; i < trail.length; i++ ) {
         var curPart;
-        if ( i == trail.length - 1 ) {
-          curPart = new PIXI.Sprite(id["snake-head.png"]);
-        } else if ( i == 0 ) {
-          curPart = new PIXI.Sprite(id["snake-tail.png"]);
+
+				if ( i == 0 ) {
+					// Initial previous x and y of snake's tail
+					snake.tail_px = snake.tail_px ? snake.tail_px : trail[0].x;
+					snake.tail_py = snake.tail_py? snake.tail_py : trail[0].y;
+
+					if ( snake.tail_px == trail[0].x + 1 ) {
+						snake.tail_direction = "left";
+					} else if ( snake.tail_px == trail[0].x - 1 ) {
+						snake.tail_direction = "right";
+					} else if ( snake.tail_py == trail[0].y + 1 ) {
+						snake.tail_direction = "up";
+					} else if ( snake.tail_py == trail[0].y - 1 ) {
+						snake.tail_direction = "down";
+					} else {
+						snake.tail_direction = "right";
+					}
+					
+					snake.tail_px = trail[0].x;
+					snake.tail_py = trail[0].y;
+
+					curPart = new PIXI.Sprite(id["snake-tail-" + snake.tail_direction + ".png"]);
+				} else if ( i == trail.length - 1 ) {
+          curPart = new PIXI.Sprite(id["snake-head-" + snake.head_direction + ".png"]);
         } else {
           curPart = new PIXI.Sprite(id["snake-body.png"]);
         };
-        curPart.width = 60;
-        curPart.height = 60;
-        curPart.position.set(trail[i].x * grid_size, trail[i].y * grid_size);
+
+				curPart.width = grid_size;
+				curPart.height = grid_size;
+				curPart.position.set(trail[i].x * grid_size, trail[i].y * grid_size);
+
         if ( trail[i].x == snake.snake_x && trail[i].y == snake.snake_y ) {
           tail = 5;
         };
         //console.log(curPart);
         curSnake.addChild(curPart);
       };
+
+			// var tailWithDirect;
+			// if ( ifSameRow || ifSameCol ){
+			// 	tailWithDirect = new PIXI.Sprite(id["snake-tail-" + snake.head_direction + ".png"]);
+			// 	snake.tail_direction = snake.head_direction;
+			// 	console.log("One True : " + ifSameRow + " " + ifSameCol + " " + snake.tail_direction);
+			// } else {
+			// 	console.log("Two false : " + ifSameRow + " " + ifSameCol + " " + snake.tail_direction);
+			// 	tailWithDirect = new PIXI.Sprite(id["snake-tail-" + snake.tail_direction + ".png"]);
+			// }
+			//
+			// tailWithDirect.width = grid_size;
+			// tailWithDirect.height = grid_size;
+			// tailWithDirect.position.set(temp_tail.x * grid_size, temp_tail.y * grid_size);
+			// curSnake.addChild(tailWithDirect);
 
       // move the snake
       trail.push({x:snake.snake_x, y: snake.snake_y});
@@ -196,16 +238,16 @@ angular.module('timekiller').service('firGameSvc', [
       };
 
       // ========= Set up apple/goal for snake =========
-      var apple = new PIXI.Sprite(id["snake-body.png"]);
+      var apple = new PIXI.Sprite(id["apple.png"]);
       // Apple
       if ( apple_x == snake.snake_x && apple_y == snake.snake_y ) {
         tail++;
         apple_x = Math.floor(Math.random() * tail_count);
-        apple_y = Math.floor(Math.random() * tail_count);        
+        apple_y = Math.floor(Math.random() * tail_count);
       };
 
-      apple.width = 60;
-      apple.height = 60;
+      apple.width = grid_size;
+      apple.height = grid_size;
       apple.position.set(apple_x * grid_size, apple_y  * grid_size);
       curApple.addChild(apple);
 
@@ -215,7 +257,7 @@ angular.module('timekiller').service('firGameSvc', [
         {fontFamily: "Arial", fontSize: 16, fill: "black"}
       );
 
-      message.position.set(820, 30);
+      message.position.set(520, 30);
       curMess.addChild(message);
 
     }
