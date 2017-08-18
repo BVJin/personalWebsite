@@ -57,9 +57,9 @@ angular.module('articles').controller('ArticlesController', ['$scope', '$filter'
 			$scope.loading.book = true;
 			blogSvc.listBook().$promise.then(function(data){
 				$scope.books = data;
-				//set "Misc" as default book
+				//set first book as default book
 				if(!$stateParams.bookId){
-					$scope.currentBook = $filter('filter')(data, {name: "Misc"}, true)[0];
+					$scope.currentBook = data[0] ? data[0] : null;
 				}else{
 					$scope.currentBook = $filter('filter')(data, {bookId: parseInt($stateParams.bookId)}, true)[0];
 				}

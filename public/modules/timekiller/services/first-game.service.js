@@ -8,6 +8,9 @@ angular.module('timekiller').service('firGameSvc', [
     var renderer, stage, id, snake = {};
     var grid_size, tail_count, apple_x, apple_y, trail, tail;
     var state;
+
+		// buttons
+		var start_button, start_text;
     this.initGame = function (container) {
 
         snake.snake_x = snake.snake_y = 20;
@@ -28,16 +31,37 @@ angular.module('timekiller').service('firGameSvc', [
 
         renderer.backgroundColor = 0xffffff;
 
-        PIXI.loader
-    	  .add("modules/timekiller/images/snake.json")
-    	  .add("modules/timekiller/images/snake.png")
-    	  .load(setup);
-
         //Add the canvas to the HTML document
         container.appendChild(renderer.view);
 
         //Create a container object called the `stage`
         stage = new PIXI.Container();
+
+				// Home page buttons
+				start_button = new PIXI.Graphics();
+
+				start_button.lineStyle(2, 0x87CEFA, 1);
+				start_button.drawRoundedRect(200, 200, 200, 70, 15);
+				start_button.interactive = true;
+				start_button.buttonMode = true;
+				start_button.hitArea = start_button.getBounds();
+				start_button.click = function () {
+					stageRemoveAllButtons();
+					snake.x_v = 1;
+					PIXI.loader
+	    	  .add("modules/timekiller/images/snake.json")
+	    	  .load(setup);
+				};
+
+				start_text = new PIXI.Text(
+					"Play Game",
+  				{fontFamily: "Arial", fontSize: 25, fill: "#87CEFA"}
+				);
+				start_text.position.set(240, 220);
+
+				stage.addChild(start_button);
+				stage.addChild(start_text);
+
         renderer.render(stage);
 
     };
@@ -177,6 +201,9 @@ angular.module('timekiller').service('firGameSvc', [
       for ( var i = 0; i < trail.length; i++ ) {
         var curPart;
 
+				// Tail direction is not like head, it can't be decided by the button press, since it
+				// will change the direction until the tail's x y changed, before that, follow the
+				// previous direction.
 				if ( i == 0 ) {
 					// Initial previous x and y of snake's tail
 					snake.tail_px = snake.tail_px ? snake.tail_px : trail[0].x;
@@ -193,7 +220,7 @@ angular.module('timekiller').service('firGameSvc', [
 					} else {
 						snake.tail_direction = "right";
 					}
-					
+
 					snake.tail_px = trail[0].x;
 					snake.tail_py = trail[0].y;
 
@@ -214,21 +241,6 @@ angular.module('timekiller').service('firGameSvc', [
         //console.log(curPart);
         curSnake.addChild(curPart);
       };
-
-			// var tailWithDirect;
-			// if ( ifSameRow || ifSameCol ){
-			// 	tailWithDirect = new PIXI.Sprite(id["snake-tail-" + snake.head_direction + ".png"]);
-			// 	snake.tail_direction = snake.head_direction;
-			// 	console.log("One True : " + ifSameRow + " " + ifSameCol + " " + snake.tail_direction);
-			// } else {
-			// 	console.log("Two false : " + ifSameRow + " " + ifSameCol + " " + snake.tail_direction);
-			// 	tailWithDirect = new PIXI.Sprite(id["snake-tail-" + snake.tail_direction + ".png"]);
-			// }
-			//
-			// tailWithDirect.width = grid_size;
-			// tailWithDirect.height = grid_size;
-			// tailWithDirect.position.set(temp_tail.x * grid_size, temp_tail.y * grid_size);
-			// curSnake.addChild(tailWithDirect);
 
       // move the snake
       trail.push({x:snake.snake_x, y: snake.snake_y});
@@ -261,6 +273,13 @@ angular.module('timekiller').service('firGameSvc', [
       curMess.addChild(message);
 
     }
+
+
+		//   functions
+		function stageRemoveAllButtons() {
+			stage.removeChild(start_button);
+			stage.removeChild(start_text);
+		};
 
     function keyboard(keyCode) {
       var key = {};
