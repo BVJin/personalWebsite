@@ -1,11 +1,27 @@
 'use strict';
 
-angular.module('timekiller').controller('TimekillerController', ['$scope', 'timekillerGame',
-	function( $scope, game ) {
-
-		var container = document.getElementById('game-container');
-
-		game.initGame(container);
+angular.module('timekiller').controller('TimekillerController', ['$scope', 'firGameSvc', 'secondGameSvc',
+	function( $scope, firGame, secGame ) {
+		// $scope.initGame = function initGame(gameIndex){
+		//
+		// 	switch(gameIndex){
+		// 		case '1':
+		// 			var container1 = document.getElementById('first-game');
+		// 			firGame.initGame(container1);
+		// 			break;
+		// 		case '2':
+		// 			var container2 = document.getElementById('second-game');
+		// 			secGame.initGame(container2);
+		// 			break;
+		// 	}
+		//
+		// }
+		var container1 = document.getElementById('first-game');
+		firGame.initGame(container1);
+		//
+		//
+		// var container2 = document.getElementById('second-game');
+		// secGame.initGame(container2);
 		/*
 		//Create the renderer
 		var renderer = PIXI.autoDetectRenderer(
