@@ -5,22 +5,35 @@ angular.module('timekiller').service('firGameSvc', [
 
 	function() {
 
-    var renderer, stage, id, snake = {};
-    var grid_size, tail_count, apple_x, apple_y, trail, tail;
+    var renderer, stage, id, snake = {}, ai_snake={};
+    var grid_size, tail_count, apple_x, apple_y, trail, tail, ai_trail, ai_tail;
     var state;
 
 		// buttons
 		var start_button, start_text;
     this.initGame = function (container) {
 
+				// user's snake
         snake.snake_x = snake.snake_y = 20;
 				snake.head_direction = "right", snake.tail_direction = "right";
         snake.x_v = snake.x_y = 0;
+				trail = [];
+        tail = 5;
+				// AI snake
+				ai_snake.snake_x = ai_snake.snake_y = 19;
+				ai_snake.head_direction = "right", ai_snake.tail_direction = "right";
+				ai_snake.x_v = 1;
+				ai_snake.x_y = 0;
+				ai_trail = [];
+        ai_tail = 5;
+
+				// other settings
         grid_size = 30;
         tail_count = 20;
         apple_x = apple_y = 10;
-        trail = [];
-        tail = 5;
+
+
+
 
         //Create the renderer
         renderer = PIXI.autoDetectRenderer(
@@ -47,7 +60,6 @@ angular.module('timekiller').service('firGameSvc', [
 				start_button.hitArea = start_button.getBounds();
 				start_button.click = function () {
 					stageRemoveAllButtons();
-					snake.x_v = 1;
 					PIXI.loader
 	    	  .add("modules/timekiller/images/snake.json")
 	    	  .load(setup);
@@ -154,14 +166,14 @@ angular.module('timekiller').service('firGameSvc', [
       gameLoop();
     };
 
-    var curSnake, curApple, curMess;
-
+    var curSnake, curAISnake, curApple, curMess;
     function gameLoop() {
       setTimeout(function() {
         requestAnimationFrame(gameLoop);
       }, 1000 / 10)
       state();
       stage.addChild(curSnake);
+			stage.addChild(curAISnake);
       stage.addChild(curApple);
       stage.addChild(curMess);
       renderer.render(stage);
@@ -171,11 +183,13 @@ angular.module('timekiller').service('firGameSvc', [
 
       //  Remove child cotainers instead of destory the container
       stage.removeChild(curSnake);
+			stage.removeChild(curAISnake);
       stage.removeChild(curApple);
       stage.removeChild(curMess);
 
       //  Re define those containers
       curSnake = new PIXI.Container();
+			curAISnake = new PIXI.Container();
       curApple = new PIXI.Container();
       curMess = new PIXI.Container();
 
@@ -248,6 +262,77 @@ angular.module('timekiller').service('firGameSvc', [
       while ( trail.length > tail ) {
         trail.shift();
       };
+
+			// ========= Set up AI snake =========
+      ai_snake.snake_x += ai_snake.x_v;
+      ai_snake.snake_y += ai_snake.x_y;
+      if ( ai_snake.snake_x < 0 ) {
+          ai_snake.snake_x = tail_count - 1;
+      };
+
+      if ( ai_snake.snake_x > tail_count - 1 ) {
+          ai_snake.snake_x = 0;
+      };
+
+      if ( ai_snake.snake_y < 0 ) {
+          ai_snake.snake_y = tail_count - 1;
+      };
+
+      if ( ai_snake.snake_y > tail_count - 1 ) {
+          ai_snake.snake_y = 0;
+      };
+
+      for ( var i = 0; i < ai_trail.length; i++ ) {
+        var curPart;
+
+				// Tail direction is not like head, it can't be decided by the button press, since it
+				// will change the direction until the tail's x y changed, before that, follow the
+				// previous direction.
+				if ( i == 0 ) {
+					// Initial previous x and y of snake's tail
+					ai_snake.tail_px = ai_snake.tail_px ? ai_snake.tail_px : ai_trail[0].x;
+					ai_snake.tail_py = ai_snake.tail_py? ai_snake.tail_py : ai_trail[0].y;
+
+					if ( ai_snake.tail_px == ai_trail[0].x + 1 ) {
+						ai_snake.tail_direction = "left";
+					} else if ( ai_snake.tail_px == ai_trail[0].x - 1 ) {
+						ai_snake.tail_direction = "right";
+					} else if ( ai_snake.tail_py == ai_trail[0].y + 1 ) {
+						ai_snake.tail_direction = "up";
+					} else if ( ai_snake.tail_py == ai_trail[0].y - 1 ) {
+						ai_snake.tail_direction = "down";
+					} else {
+						ai_snake.tail_direction = "right";
+					}
+
+					ai_snake.tail_px = ai_trail[0].x;
+					ai_snake.tail_py = ai_trail[0].y;
+
+					curPart = new PIXI.Sprite(id["snake-tail-" + ai_snake.tail_direction + ".png"]);
+				} else if ( i == ai_trail.length - 1 ) {
+          curPart = new PIXI.Sprite(id["snake-head-" + ai_snake.head_direction + ".png"]);
+        } else {
+          curPart = new PIXI.Sprite(id["snake-body.png"]);
+        };
+
+				curPart.width = grid_size;
+				curPart.height = grid_size;
+				curPart.position.set(ai_trail[i].x * grid_size, ai_trail[i].y * grid_size);
+
+        if ( ai_trail[i].x == ai_snake.snake_x && ai_trail[i].y == ai_snake.snake_y ) {
+          ai_tail = 5;
+        };
+        //console.log(curPart);
+        curSnake.addChild(curPart);
+      };
+
+      // move the snake
+      ai_trail.push({x:ai_snake.snake_x, y: ai_snake.snake_y});
+
+      while ( ai_trail.length > ai_tail ) {
+        ai_trail.shift();
+      };
+
 
       // ========= Set up apple/goal for snake =========
       var apple = new PIXI.Sprite(id["apple.png"]);
