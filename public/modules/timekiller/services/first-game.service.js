@@ -1,26 +1,40 @@
 'use strict';
 
 //Menu service used for managing  menus
-angular.module('timekiller').service('firGameSvc', [
+angular.module('timekiller').service('firGameSvc', ['$filter',
 
-	function() {
+	function($filter) {
 
-    var renderer, stage, id, snake = {};
-    var grid_size, tail_count, apple_x, apple_y, trail, tail;
+    var renderer, stage, id, snake = {}, ai_snake={};
+    var grid_size, tail_count, apple_x, apple_y, trail, tail, ai_trail, ai_tail;
     var state;
 
 		// buttons
 		var start_button, start_text;
     this.initGame = function (container) {
 
+				// user's snake
         snake.snake_x = snake.snake_y = 20;
 				snake.head_direction = "right", snake.tail_direction = "right";
         snake.x_v = snake.x_y = 0;
+				trail = [];
+        tail = 5;
+				// AI snake
+				ai_snake.snake_x = 0;
+				ai_snake.snake_y = 19;
+				ai_snake.head_direction = "right", ai_snake.tail_direction = "right";
+				ai_snake.x_v = 1;
+				ai_snake.x_y = 0;
+				ai_trail = [];
+        ai_tail = 5;
+
+				// other settings
         grid_size = 30;
         tail_count = 20;
         apple_x = apple_y = 10;
-        trail = [];
-        tail = 5;
+
+
+
 
         //Create the renderer
         renderer = PIXI.autoDetectRenderer(
@@ -47,7 +61,6 @@ angular.module('timekiller').service('firGameSvc', [
 				start_button.hitArea = start_button.getBounds();
 				start_button.click = function () {
 					stageRemoveAllButtons();
-					snake.x_v = 1;
 					PIXI.loader
 	    	  .add("modules/timekiller/images/snake.json")
 	    	  .load(setup);
@@ -150,18 +163,18 @@ angular.module('timekiller').service('firGameSvc', [
 
       //Set the game state
       state = play;
-
+			//findPath();
       gameLoop();
     };
 
-    var curSnake, curApple, curMess;
-
+    var curSnake, curAISnake, curApple, curMess;
     function gameLoop() {
       setTimeout(function() {
         requestAnimationFrame(gameLoop);
       }, 1000 / 10)
       state();
       stage.addChild(curSnake);
+			stage.addChild(curAISnake);
       stage.addChild(curApple);
       stage.addChild(curMess);
       renderer.render(stage);
@@ -171,11 +184,13 @@ angular.module('timekiller').service('firGameSvc', [
 
       //  Remove child cotainers instead of destory the container
       stage.removeChild(curSnake);
+			stage.removeChild(curAISnake);
       stage.removeChild(curApple);
       stage.removeChild(curMess);
 
       //  Re define those containers
       curSnake = new PIXI.Container();
+			curAISnake = new PIXI.Container();
       curApple = new PIXI.Container();
       curMess = new PIXI.Container();
 
@@ -249,13 +264,109 @@ angular.module('timekiller').service('firGameSvc', [
         trail.shift();
       };
 
+			// ========= Set up AI snake =========
+			var nextStep = findPath();
+			console.log(nextStep);
+      ai_snake.snake_x += nextStep.xv;
+      ai_snake.snake_y += nextStep.xy;
+      if ( ai_snake.snake_x < 0 ) {
+          ai_snake.snake_x = tail_count - 1;
+      };
+
+      if ( ai_snake.snake_x > tail_count - 1 ) {
+          ai_snake.snake_x = 0;
+      };
+
+      if ( ai_snake.snake_y < 0 ) {
+          ai_snake.snake_y = tail_count - 1;
+      };
+
+      if ( ai_snake.snake_y > tail_count - 1 ) {
+          ai_snake.snake_y = 0;
+      };
+
+      for ( var i = 0; i < ai_trail.length; i++ ) {
+        var curPart;
+
+				// Tail direction is not like head, it can't be decided by the button press, since it
+				// will change the direction until the tail's x y changed, before that, follow the
+				// previous direction.
+				if ( i == 0 ) {
+					// Initial previous x and y of snake's tail
+					ai_snake.tail_px = ai_snake.tail_px ? ai_snake.tail_px : ai_trail[0].x;
+					ai_snake.tail_py = ai_snake.tail_py? ai_snake.tail_py : ai_trail[0].y;
+
+					if ( ai_snake.tail_px == ai_trail[0].x + 1 ) {
+						ai_snake.tail_direction = "left";
+					} else if ( ai_snake.tail_px == ai_trail[0].x - 1 ) {
+						ai_snake.tail_direction = "right";
+					} else if ( ai_snake.tail_py == ai_trail[0].y + 1 ) {
+						ai_snake.tail_direction = "up";
+					} else if ( ai_snake.tail_py == ai_trail[0].y - 1 ) {
+						ai_snake.tail_direction = "down";
+					} else {
+						ai_snake.tail_direction = "right";
+					}
+
+					ai_snake.tail_px = ai_trail[0].x;
+					ai_snake.tail_py = ai_trail[0].y;
+
+					curPart = new PIXI.Sprite(id["snake-tail-" + ai_snake.tail_direction + ".png"]);
+				} else if ( i == ai_trail.length - 1 ) {
+          curPart = new PIXI.Sprite(id["snake-head-" + ai_snake.head_direction + ".png"]);
+        } else {
+          curPart = new PIXI.Sprite(id["snake-body.png"]);
+        };
+
+				curPart.width = grid_size;
+				curPart.height = grid_size;
+				curPart.position.set(ai_trail[i].x * grid_size, ai_trail[i].y * grid_size);
+
+        if ( ai_trail[i].x == ai_snake.snake_x && ai_trail[i].y == ai_snake.snake_y ) {
+          ai_tail = 5;
+        };
+        //console.log(curPart);
+        curSnake.addChild(curPart);
+      };
+
+      // move the snake
+      ai_trail.push({x:ai_snake.snake_x, y: ai_snake.snake_y});
+
+      while ( ai_trail.length > ai_tail ) {
+        ai_trail.shift();
+      };
+
+
       // ========= Set up apple/goal for snake =========
       var apple = new PIXI.Sprite(id["apple.png"]);
-      // Apple
+      // Apple should not appear inside of snake body
+			var snake_xs = [], snake_ys = [];
+			var left_xs = [], left_ys = [];
+			for ( var i = 0; i < trail.length; i++ ) {
+				snake_xs.push(trail[i].x);
+				snake_ys.push(trail[i].y);
+			};
+
+			for ( var i = 0; i < tail_count; i++ ) {
+					if ( snake_xs.indexOf(i) == -1 ) {
+						left_xs.push(i);
+					};
+
+					if ( snake_ys.indexOf(i) == -1 ) {
+						left_ys.push(i);
+					};
+			};
+
       if ( apple_x == snake.snake_x && apple_y == snake.snake_y ) {
         tail++;
-        apple_x = Math.floor(Math.random() * tail_count);
-        apple_y = Math.floor(Math.random() * tail_count);
+        apple_x = left_xs[Math.floor(Math.random() * left_xs.length)];
+        apple_y = left_ys[Math.floor(Math.random() * left_ys.length)];
+      };
+
+			if ( apple_x == ai_snake.snake_x && apple_y == ai_snake.snake_y ) {
+        ai_tail++;
+        apple_x = left_xs[Math.floor(Math.random() * left_xs.length)];
+        apple_y = left_ys[Math.floor(Math.random() * left_ys.length)];
       };
 
       apple.width = grid_size;
@@ -318,6 +429,79 @@ angular.module('timekiller').service('firGameSvc', [
       return key;
     };
 
+
+		// A star path finding
+		function findPath () {
+			var steps = [];
+
+			var openList = [];
+			var curLvl = 1;
+
+			var grids = []; // grid size
+			for ( var i = 0; i < tail_count; i++ ) {
+				grids[i] = [];
+				for ( var j = 0; j < tail_count; j++ ) {
+					grids[i].push({"visited" : false});
+				}
+
+			};
+
+			grids[ai_snake.snake_x][ai_snake.snake_y].visited = true;
+			// avoid to kill itself
+			for ( var i = 0; i < ai_trail.length; i++ ) {
+				grids[ai_trail[i].x][ai_trail[i].y].visited = true;
+			};
+
+			var nextSteps = countNextSteps(ai_snake.snake_x, ai_snake.snake_y, curLvl);
+			if ( nextSteps.length > 0 ) {
+				openList[0] = $filter('orderBy')(openList.concat(nextSteps), ["f", "h"]);
+			}
+
+			//console.log(openList);
+			while( openList[curLvl - 1].length != 0 ) {
+				var nextStep = openList[curLvl - 1].shift();
+				steps[curLvl-1] = angular.copy(nextStep);
+				//  if hit the apple
+				if ( ((nextStep.x - 1 == apple_x || nextStep.x + 1 == apple_x) && nextStep.y == apple_y) || ((nextStep.y - 1 == apple_y || nextStep.y + 1 == apple_y) && nextStep.x == apple_x)){
+					steps.push({x : apple_x, y : apple_y, xv : 0, xy : 0});
+					return steps[0];
+				};
+
+				var nextMoves = countNextSteps(nextStep.x, nextStep.y, curLvl + 1);
+
+				if ( nextMoves.length > 0 ) {
+					openList[curLvl] = $filter('orderBy')(openList.concat(nextMoves), ["f", "h"]);
+					curLvl = curLvl + 1;
+				};
+			};
+
+			function countNextSteps (x, y, lvl) {
+				let nextSteps = [];
+
+				var tempSteps = [
+					{x:-1, y:0},
+					{x:1, y:0},
+					{x:0, y:1},
+					{x:0, y:-1},
+				];
+
+				angular.forEach(tempSteps, function(step){
+					var cur_x = x + step.x > tail_count-1 ? 0 : x + step.x < 0 ? tail_count-1 : x + step.x;
+					var cur_y = y + step.y > tail_count-1 ? 0 : y + step.y < 0 ? tail_count-1 : y + step.y;
+					if ( !grids[cur_x][cur_y].visited ) {
+						var obj = { x : cur_x, y : cur_y, xv: cur_x - x, xy: cur_y - y, g : lvl, h : Math.abs(cur_x - apple_x) + Math.abs(cur_y- apple_y) };
+						obj.f = obj.g + obj.h;
+						nextSteps.push(obj);
+						grids[cur_x][cur_y].visited = true;
+					}
+				});
+
+				return nextSteps;
+
+			};
+
+			return steps[0];
+		};
 
 	}
 ]);
