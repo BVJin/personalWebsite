@@ -5,35 +5,18 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 
 	function($filter) {
 
+		var game_container;
+
     var renderer, stage, id, snake = {}, ai_snake={};
     var grid_size, tail_count, apple_x, apple_y, trail, tail, ai_trail, ai_tail;
     var state;
 
 		// buttons
 		var start_button, start_text;
+		var end_box, end_text, gameEndMessgae;
+
     this.initGame = function (container) {
-
-				// user's snake
-        snake.snake_x = snake.snake_y = 20;
-				snake.head_direction = "right", snake.tail_direction = "right";
-        snake.x_v = snake.x_y = 0;
-				trail = [];
-        tail = 5;
-				// AI snake
-				ai_snake.snake_x = 0;
-				ai_snake.snake_y = 19;
-				ai_snake.head_direction = "right", ai_snake.tail_direction = "right";
-				ai_snake.x_v = 1;
-				ai_snake.x_y = 0;
-				ai_trail = [];
-        ai_tail = 5;
-
-				// other settings
-        grid_size = 30;
-        tail_count = 20;
-        apple_x = apple_y = 10;
-
-
+				game_container = container;
 
 
         //Create the renderer
@@ -46,7 +29,7 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
         renderer.backgroundColor = 0xffffff;
 
         //Add the canvas to the HTML document
-        container.appendChild(renderer.view);
+        game_container.appendChild(renderer.view);
 
         //Create a container object called the `stage`
         stage = new PIXI.Container();
@@ -60,11 +43,12 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 				start_button.buttonMode = true;
 				start_button.hitArea = start_button.getBounds();
 				start_button.click = function () {
-					stageRemoveAllButtons();
+					initParams();
 					PIXI.loader
 	    	  .add("modules/timekiller/images/snake.json")
 	    	  .load(setup);
 				};
+
 
 				start_text = new PIXI.Text(
 					"Play Game",
@@ -78,6 +62,38 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
         renderer.render(stage);
 
     };
+
+		function initParams () {
+			// clean the stage
+			while(stage.children[0]) { stage.removeChild(stage.children[0]); }
+
+			// user's snake
+			snake.snake_x = snake.snake_y = 20;
+			snake.head_direction = "right", snake.tail_direction = "right";
+			snake.x_v = 1;
+			snake.x_y = 0;
+			snake.isStop = false;
+			trail = [];
+			tail = 5;
+			// AI snake
+			ai_snake.snake_x = 0;
+			ai_snake.snake_y = 19;
+			ai_snake.head_direction = "right", ai_snake.tail_direction = "right";
+			ai_snake.x_v = ai_snake.x_y = 0;
+			ai_snake.isStop = false;
+			ai_trail = [];
+			ai_tail = 5;
+
+			// other settings
+			grid_size = 30;
+			tail_count = 20;
+			apple_x = apple_y = 10;
+
+			if ( end_box )
+				stage.removeChild(end_box);
+			if ( end_text )
+				stage.removeChild(end_text);
+		};
 
     function setup() {
 
@@ -168,11 +184,15 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
     };
 
     var curSnake, curAISnake, curApple, curMess;
+		var isGameEnd = false;
     function gameLoop() {
       setTimeout(function() {
         requestAnimationFrame(gameLoop);
       }, 1000 / 10)
-      state();
+			if ( !isGameEnd ) {
+	      state();
+			};
+
       stage.addChild(curSnake);
 			stage.addChild(curAISnake);
       stage.addChild(curApple);
@@ -195,8 +215,10 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
       curMess = new PIXI.Container();
 
       // ========= Set up snake =========
-      snake.snake_x += snake.x_v;
-      snake.snake_y += snake.x_y;
+			if ( !snake.isStop ) {
+		    snake.snake_x += snake.x_v;
+	      snake.snake_y += snake.x_y;
+			}
       if ( snake.snake_x < 0 ) {
           snake.snake_x = tail_count - 1;
       };
@@ -250,9 +272,29 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 				curPart.height = grid_size;
 				curPart.position.set(trail[i].x * grid_size, trail[i].y * grid_size);
 
+				//  if hit own'body
         if ( trail[i].x == snake.snake_x && trail[i].y == snake.snake_y ) {
-          tail = 5;
+					gameEndMessgae = "AI won, you score is " + tail + ", AI score is " + ai_tail;
         };
+				// if hit the AI's body
+				for ( var j = 0; j < ai_trail.length; j++ ) {
+					if ( ai_trail[j].x == snake.snake_x && ai_trail[j].y == snake.snake_y ) {
+						//  if it is head to head, compare the length
+						if ( j == ai_trail.lenght - 1 ) {
+							if ( ai_tail > tail ) {
+								gameEndMessgae =  "AI won, you score is " + tail + ", AI score is " + ai_tail;
+							} else if ( ai_tail < tail ) {
+								gameEndMessgae =  "You won, you score is " + tail + ", AI score is " + ai_tail;
+							} else {
+								gameEndMessgae =  "Draw, you score is " + tail + ", AI score is " + ai_tail;
+							};
+						}
+						gameEndMessgae = "AI won, you score is " + tail + ", AI score is " + ai_tail;
+	          //tail = 5;
+						endGame();
+	        };
+				};
+
         //console.log(curPart);
         curSnake.addChild(curPart);
       };
@@ -265,10 +307,13 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
       };
 
 			// ========= Set up AI snake =========
-			var nextStep = findPath();
-			console.log(nextStep);
-      ai_snake.snake_x += nextStep.xv;
-      ai_snake.snake_y += nextStep.xy;
+			var nextStep;
+			if ( !ai_snake.isStop ) {
+				nextStep = findPath();
+	      ai_snake.snake_x += nextStep.xv;
+	      ai_snake.snake_y += nextStep.xy;
+			}
+
       if ( ai_snake.snake_x < 0 ) {
           ai_snake.snake_x = tail_count - 1;
       };
@@ -284,6 +329,15 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
       if ( ai_snake.snake_y > tail_count - 1 ) {
           ai_snake.snake_y = 0;
       };
+
+			// head direction
+			if ( nextStep ) {
+				if (nextStep.xv == 1) ai_snake.head_direction = "right";
+				if (nextStep.xv == -1) ai_snake.head_direction = "left";
+				if (nextStep.xy == 1) ai_snake.head_direction = "down";
+				if (nextStep.xy == -1) ai_snake.head_direction = "up";
+			};
+
 
       for ( var i = 0; i < ai_trail.length; i++ ) {
         var curPart;
@@ -342,9 +396,15 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
       // Apple should not appear inside of snake body
 			var snake_xs = [], snake_ys = [];
 			var left_xs = [], left_ys = [];
+			// exclude player snake body
 			for ( var i = 0; i < trail.length; i++ ) {
 				snake_xs.push(trail[i].x);
 				snake_ys.push(trail[i].y);
+			};
+			// exclude ai snake body
+			for ( var i = 0; i < ai_trail.length; i++ ) {
+				snake_xs.push(ai_trail[i].x);
+				snake_ys.push(ai_trail[i].y);
 			};
 
 			for ( var i = 0; i < tail_count; i++ ) {
@@ -356,13 +416,13 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 						left_ys.push(i);
 					};
 			};
-
+			// Player takes the target
       if ( apple_x == snake.snake_x && apple_y == snake.snake_y ) {
         tail++;
         apple_x = left_xs[Math.floor(Math.random() * left_xs.length)];
         apple_y = left_ys[Math.floor(Math.random() * left_ys.length)];
       };
-
+			// AI takes the target
 			if ( apple_x == ai_snake.snake_x && apple_y == ai_snake.snake_y ) {
         ai_tail++;
         apple_x = left_xs[Math.floor(Math.random() * left_xs.length)];
@@ -386,11 +446,30 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
     }
 
 
-		//   functions
-		function stageRemoveAllButtons() {
-			stage.removeChild(start_button);
-			stage.removeChild(start_text);
-		};
+		function endGame () {
+			isGameEnd = true;
+			// End box
+			end_box = new PIXI.Graphics();
+
+			end_box.lineStyle(2, 0x87CEFA, 1);
+			end_box.drawRoundedRect(100, 200, 400, 70, 20);
+			end_box.interactive = true;
+			end_box.buttonMode = true;
+			end_box.hitArea = start_button.getBounds();
+			end_box.click = function () {
+				isGameEnd = false;
+				initParams();
+			};
+
+			end_text = new PIXI.Text(
+				gameEndMessgae,
+				{fontFamily: "Arial", fontSize: 20, fill: "#87CEFA"}
+			);
+			end_text.position.set(150, 220);
+
+			stage.addChild(end_box);
+			stage.addChild(end_text);
+		}
 
     function keyboard(keyCode) {
       var key = {};
@@ -434,7 +513,11 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 		function findPath () {
 			var steps = [];
 
+			//  every level have a list to represent current lvl options
+			var lvlList = [];
+			// open list will get all the possible steps and compare the least f out of here
 			var openList = [];
+
 			var curLvl = 1;
 
 			var grids = []; // grid size
@@ -447,19 +530,25 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 			};
 
 			grids[ai_snake.snake_x][ai_snake.snake_y].visited = true;
+
 			// avoid to kill itself
 			for ( var i = 0; i < ai_trail.length; i++ ) {
 				grids[ai_trail[i].x][ai_trail[i].y].visited = true;
 			};
+			// avido to hit the player snake
+			for ( var i = 0; i < trail.length; i++ ) {
+				grids[trail[i].x][trail[i].y].visited = true;
+			};
 
-			var nextSteps = countNextSteps(ai_snake.snake_x, ai_snake.snake_y, curLvl);
-			if ( nextSteps.length > 0 ) {
-				openList[0] = $filter('orderBy')(openList.concat(nextSteps), ["f", "h"]);
-			}
+			// Intial the first step
+			openList = $filter('orderBy')(countNextSteps(ai_snake.snake_x, ai_snake.snake_y, curLvl), ["f", "h"]);
 
 			//console.log(openList);
-			while( openList[curLvl - 1].length != 0 ) {
-				var nextStep = openList[curLvl - 1].shift();
+			while( openList.length > 0 ) {
+				var nextStep = openList.shift();
+				// When the current path has higher f then the recored step, it should go back to the pervious level
+				curLvl = nextStep.g;
+				// record the step to the steps
 				steps[curLvl-1] = angular.copy(nextStep);
 				//  if hit the apple
 				if ( ((nextStep.x - 1 == apple_x || nextStep.x + 1 == apple_x) && nextStep.y == apple_y) || ((nextStep.y - 1 == apple_y || nextStep.y + 1 == apple_y) && nextStep.x == apple_x)){
@@ -469,9 +558,10 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 
 				var nextMoves = countNextSteps(nextStep.x, nextStep.y, curLvl + 1);
 
+				// if there is next move
 				if ( nextMoves.length > 0 ) {
-					openList[curLvl] = $filter('orderBy')(openList.concat(nextMoves), ["f", "h"]);
-					curLvl = curLvl + 1;
+					openList = $filter('orderBy')(openList.concat(nextMoves), ["f", "h"]);
+				// if the snake is trapped, it should do the max steps in the trap area
 				};
 			};
 
