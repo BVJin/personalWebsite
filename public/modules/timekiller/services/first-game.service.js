@@ -275,6 +275,7 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 				//  if hit own'body
         if ( trail[i].x == snake.snake_x && trail[i].y == snake.snake_y ) {
 					gameEndMessgae = "AI won, you score is " + tail + ", AI score is " + ai_tail;
+					endGame();
         };
 				// if hit the AI's body
 				for ( var j = 0; j < ai_trail.length; j++ ) {
