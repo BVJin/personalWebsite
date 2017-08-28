@@ -580,7 +580,19 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 					var cur_x = x + step.x > tail_count-1 ? 0 : x + step.x < 0 ? tail_count-1 : x + step.x;
 					var cur_y = y + step.y > tail_count-1 ? 0 : y + step.y < 0 ? tail_count-1 : y + step.y;
 					if ( !grids[cur_x][cur_y].visited ) {
-						var obj = { x : cur_x, y : cur_y, xv: cur_x - x, xy: cur_y - y, g : lvl, h : Math.abs(cur_x - apple_x) + Math.abs(cur_y- apple_y) };
+						// Since our snake can cross the wall, so we need to count the step cost when snake cross vertically and horizontatly
+						// and use the min result for the next step
+
+						// vertical cross h
+						var ver_h = Math.abs(cur_x - apple_x) + tail_count - Math.abs(cur_y - apple_y);
+						// horizontal cross h
+						var hor_h = tail_count - Math.abs(cur_x - apple_x) + Math.abs(cur_y- apple_y);
+						// regular h
+						var reg_h = Math.abs(cur_x - apple_x) + Math.abs(cur_y- apple_y);
+						// min h
+						var min_h = Math.min(ver_h, hor_h, reg_h);
+
+						var obj = { x : cur_x, y : cur_y, xv: cur_x - x, xy: cur_y - y, g : lvl, h : min_h };
 						obj.f = obj.g + obj.h;
 						nextSteps.push(obj);
 						grids[cur_x][cur_y].visited = true;
