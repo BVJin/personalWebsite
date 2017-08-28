@@ -72,7 +72,6 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 			snake.head_direction = "right", snake.tail_direction = "right";
 			snake.x_v = 1;
 			snake.x_y = 0;
-			snake.isStop = false;
 			trail = [];
 			tail = 5;
 			// AI snake
@@ -80,7 +79,6 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 			ai_snake.snake_y = 19;
 			ai_snake.head_direction = "right", ai_snake.tail_direction = "right";
 			ai_snake.x_v = ai_snake.x_y = 0;
-			ai_snake.isStop = false;
 			ai_trail = [];
 			ai_tail = 5;
 
@@ -188,12 +186,12 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
     function gameLoop() {
       setTimeout(function() {
         requestAnimationFrame(gameLoop);
-      }, 1000 / 10)
+      }, 1000 / 30)
 			if ( !isGameEnd ) {
 	      state();
 			};
 
-      stage.addChild(curSnake);
+      //stage.addChild(curSnake);
 			stage.addChild(curAISnake);
       stage.addChild(curApple);
       stage.addChild(curMess);
@@ -203,22 +201,32 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
     function play() {
 
       //  Remove child cotainers instead of destory the container
-      stage.removeChild(curSnake);
+      //stage.removeChild(curSnake);
 			stage.removeChild(curAISnake);
       stage.removeChild(curApple);
       stage.removeChild(curMess);
 
       //  Re define those containers
-      curSnake = new PIXI.Container();
+      //curSnake = new PIXI.Container();
 			curAISnake = new PIXI.Container();
       curApple = new PIXI.Container();
       curMess = new PIXI.Container();
 
-      // ========= Set up snake =========
-			if ( !snake.isStop ) {
-		    snake.snake_x += snake.x_v;
-	      snake.snake_y += snake.x_y;
-			}
+			//setUpPlayerSnake();
+			setUpAISnake();
+			setUpApple();
+			setUpGameMessgae();
+    }
+
+
+		/*
+			Game intial setting functions
+		*/
+		function setUpPlayerSnake() {
+			// ========= Set up snake =========
+	    snake.snake_x += snake.x_v;
+      snake.snake_y += snake.x_y;
+
       if ( snake.snake_x < 0 ) {
           snake.snake_x = tail_count - 1;
       };
@@ -307,13 +315,62 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
         trail.shift();
       };
 
+		};
+
+		function setUpAISnake() {
 			// ========= Set up AI snake =========
-			var nextStep;
-			if ( !ai_snake.isStop ) {
-				nextStep = findPath();
-	      ai_snake.snake_x += nextStep.xv;
-	      ai_snake.snake_y += nextStep.xy;
+			// In order to have a perfect snake, I am assuming the sanke body will fill all grids
+			// which means, theoretically the head will meet tail at the last step.
+			// If the snake cannot get the food (no path between the food and head), move with the longest path from head to tail(building the cycle)
+			// If the snake get the food and will trap (head cannot reach to tail) itself,
+			// we should let it do the longest path from head and tail. If it won't trap, move with the shrotest path.
+			// If all options are not avaiable, move with step farthest from head to food.
+			/* =========== steps ==========
+				1. Shorest path P1 from head to food, yes, go to 2, no, go to 3
+				2. After snake get the food, longest path P2 from head to tail, yes, move with shortest path, no, go to 3
+				3. Before snake get the food, Longest path P3 from head to tail, yes, move with the longest path, no, go to 4
+				4. Move with the step that farthest between head and food
+			*/
+			var P1 = [], P2 = [], P3 = [];
+			if ( ai_trail.length > 1 ) {
+				var nextStep;
+				if ( findPath(ai_snake.snake_x, ai_snake.snake_y, apple_x, apple_y, ai_trail, P1, "shortest") ) {
+					// Compute the tail position after get the food
+
+					// Update the snake
+					var new_snake = angular.copy(ai_trail);
+					for (var i = 0; i < P1.length; i++) {
+						for (var j = 0; j < new_snake.length; j++) {
+							new_snake[j].x = new_snake[j].x + P1[i].xv > tail_count - 1 ? 0 : new_snake[j].x + P1[i].xv < 0 ? tail_count - 1 : new_snake[j].x + P1[i].xv;
+							new_snake[j].y = new_snake[j].y + P1[i].xy > tail_count - 1 ? 0 : new_snake[j].y + P1[i].xy < 0 ? tail_count - 1 : new_snake[j].y + P1[i].xy;
+						};
+					};
+					console.log(new_snake);
+					if ( findPath(apple_x, apple_y, new_snake[0].x, new_snake[0].y, new_snake, P2, "longest") ) {
+						nextStep = P1[0];
+					} else {
+						// Since no matter P3 is existing, snake will move the farthest step for food, so move as P3
+						findPath(ai_snake.snake_x, ai_snake.snake_y, ai_trail[0].x, ai_trail[0].y, ai_trail, P3, "longest");
+						nextStep = P3[0];
+					}
+
+				} else {
+					// Since no matter P3 is existing, snake will move the farthest step for food, so move as P3
+					findPath(ai_snake.snake_x, ai_snake.snake_y, ai_trail[0].x, ai_trail[0].y, ai_trail, P3, "longest")
+					nextStep = P3[0];
+				};
+
+				ai_snake.snake_x += nextStep.xv;
+				ai_snake.snake_y += nextStep.xy;
+
+				if (nextStep.xv == 1) ai_snake.head_direction = "right";
+				if (nextStep.xv == -1) ai_snake.head_direction = "left";
+				if (nextStep.xy == 1) ai_snake.head_direction = "down";
+				if (nextStep.xy == -1) ai_snake.head_direction = "up";
+
 			}
+
+
 
       if ( ai_snake.snake_x < 0 ) {
           ai_snake.snake_x = tail_count - 1;
@@ -333,10 +390,6 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 
 			// head direction
 			if ( nextStep ) {
-				if (nextStep.xv == 1) ai_snake.head_direction = "right";
-				if (nextStep.xv == -1) ai_snake.head_direction = "left";
-				if (nextStep.xy == 1) ai_snake.head_direction = "down";
-				if (nextStep.xy == -1) ai_snake.head_direction = "up";
 			};
 
 
@@ -381,7 +434,7 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
           ai_tail = 5;
         };
         //console.log(curPart);
-        curSnake.addChild(curPart);
+        curAISnake.addChild(curPart);
       };
 
       // move the snake
@@ -391,62 +444,69 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
         ai_trail.shift();
       };
 
+		};
 
-      // ========= Set up apple/goal for snake =========
-      var apple = new PIXI.Sprite(id["apple.png"]);
-      // Apple should not appear inside of snake body
-			var snake_xs = [], snake_ys = [];
-			var left_xs = [], left_ys = [];
+		function setUpApple() {
+			// ========= Set up apple/goal for snake =========
+			var apple = new PIXI.Sprite(id["apple.png"]);
+			// Apple should not appear inside of snake body
+			var snake_coord = [];
+			//var snake_xs = [], snake_ys = [];
+			var left_coord = [];
 			// exclude player snake body
 			for ( var i = 0; i < trail.length; i++ ) {
-				snake_xs.push(trail[i].x);
-				snake_ys.push(trail[i].y);
+				snake_coord.push({x:trail[i].x, y:trail[i].y});
 			};
 			// exclude ai snake body
 			for ( var i = 0; i < ai_trail.length; i++ ) {
-				snake_xs.push(ai_trail[i].x);
-				snake_ys.push(ai_trail[i].y);
+				snake_coord.push({x:ai_trail[i].x, y:ai_trail[i].y});
 			};
 
-			for ( var i = 0; i < tail_count; i++ ) {
-					if ( snake_xs.indexOf(i) == -1 ) {
-						left_xs.push(i);
-					};
+			snake_coord.push({x:apple_x, y:apple_y});
 
-					if ( snake_ys.indexOf(i) == -1 ) {
-						left_ys.push(i);
+			for ( var i = 0; i < tail_count; i++ ) {
+					for (var j = 0; j < tail_count; j++ ) {
+						if (!$filter('filter')(snake_coord, {x : i, y : j}, true)[0]) {
+							left_coord.push({x:i, y:j});
+						};
 					};
 			};
 			// Player takes the target
-      if ( apple_x == snake.snake_x && apple_y == snake.snake_y ) {
-        tail++;
-        apple_x = left_xs[Math.floor(Math.random() * left_xs.length)];
-        apple_y = left_ys[Math.floor(Math.random() * left_ys.length)];
-      };
+			if ( apple_x == snake.snake_x && apple_y == snake.snake_y ) {
+				tail++;
+				var coord = left_coord[Math.floor(Math.random() * left_coord.length)];
+				apple_x = coord.x;
+				apple_y = coord.y;
+			};
 			// AI takes the target
 			if ( apple_x == ai_snake.snake_x && apple_y == ai_snake.snake_y ) {
-        ai_tail++;
-        apple_x = left_xs[Math.floor(Math.random() * left_xs.length)];
-        apple_y = left_ys[Math.floor(Math.random() * left_ys.length)];
-      };
+				ai_tail++;
+				var coord = left_coord[Math.floor(Math.random() * left_coord.length)];
+				apple_x = coord.x;
+				apple_y = coord.y;;
+			};
 
-      apple.width = grid_size;
-      apple.height = grid_size;
-      apple.position.set(apple_x * grid_size, apple_y  * grid_size);
-      curApple.addChild(apple);
+			apple.width = grid_size;
+			apple.height = grid_size;
+			apple.position.set(apple_x * grid_size, apple_y  * grid_size);
+			curApple.addChild(apple);
 
-      // ========= Set up text such as score =========
-      var message = new PIXI.Text(
-        "Score: " + tail,
-        {fontFamily: "Arial", fontSize: 16, fill: "black"}
-      );
+		};
 
-      message.position.set(520, 30);
-      curMess.addChild(message);
+		function setUpGameMessgae() {
+			// ========= Set up text such as score =========
+			var message = new PIXI.Text(
+				"Score: " + tail,
+				{fontFamily: "Arial", fontSize: 16, fill: "black"}
+			);
 
-    }
+			message.position.set(520, 30);
+			curMess.addChild(message);
+		};
 
-
+		/*
+			Game funtions like binding keyboard events
+		*/
 		function endGame () {
 			isGameEnd = true;
 			// End box
@@ -510,12 +570,11 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
     };
 
 
+		/*
+			AI snake algorithm, base on A star and Graph Search
+		*/
 		// A star path finding
-		function findPath () {
-			var steps = [];
-
-			//  every level have a list to represent current lvl options
-			var lvlList = [];
+		function findPath (origin_x, origin_y, target_x, target_y, curSnakeTrail, steps, type) {
 			// open list will get all the possible steps and compare the least f out of here
 			var openList = [];
 
@@ -529,20 +588,23 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 				}
 
 			};
-
-			grids[ai_snake.snake_x][ai_snake.snake_y].visited = true;
+			grids[origin_x][origin_y].visited = true;
 
 			// avoid to kill itself
-			for ( var i = 0; i < ai_trail.length; i++ ) {
-				grids[ai_trail[i].x][ai_trail[i].y].visited = true;
+			for ( var i = 0; i < curSnakeTrail.length; i++ ) {
+				grids[curSnakeTrail[i].x][curSnakeTrail[i].y].visited = true;
 			};
 			// avido to hit the player snake
-			for ( var i = 0; i < trail.length; i++ ) {
-				grids[trail[i].x][trail[i].y].visited = true;
-			};
+			// for ( var i = 0; i < trail.length; i++ ) {
+			// 	grids[trail[i].x][trail[i].y].visited = true;
+			// };
 
-			// Intial the first step
-			openList = $filter('orderBy')(countNextSteps(ai_snake.snake_x, ai_snake.snake_y, curLvl), ["f", "h"]);
+			// Intial the first step base on type
+			if ( type == "shortest" ) {
+				openList = $filter('orderBy')(countNextSteps(origin_x, origin_y, target_x, target_y, curLvl, grids, type), ["f", "h"]);
+			} else if ( type == "longest" ) {
+				openList = $filter('orderBy')(countNextSteps(origin_x, origin_y, target_x, target_y, curLvl, grids, type), ["-f", "-h"]);
+			}
 
 			//console.log(openList);
 			while( openList.length > 0 ) {
@@ -552,58 +614,72 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 				// record the step to the steps
 				steps[curLvl-1] = angular.copy(nextStep);
 				//  if hit the apple
-				if ( ((nextStep.x - 1 == apple_x || nextStep.x + 1 == apple_x) && nextStep.y == apple_y) || ((nextStep.y - 1 == apple_y || nextStep.y + 1 == apple_y) && nextStep.x == apple_x)){
-					steps.push({x : apple_x, y : apple_y, xv : 0, xy : 0});
-					return steps[0];
+				if ( nextStep.x  == target_x  && nextStep.y == target_y ){
+					steps.push({x : target_x, y : target_x, xv : 0, xy : 0});
+					return true;
 				};
 
-				var nextMoves = countNextSteps(nextStep.x, nextStep.y, curLvl + 1);
+				var nextMoves = countNextSteps(nextStep.x, nextStep.y, target_x, target_y, curLvl + 1, grids, type);
 
 				// if there is next move
 				if ( nextMoves.length > 0 ) {
-					openList = $filter('orderBy')(openList.concat(nextMoves), ["f", "h"]);
-				// if the snake is trapped, it should do the max steps in the trap area
+					if ( type == "shortest" ) {
+						openList = $filter('orderBy')(openList.concat(nextMoves), ["f", "h"]);
+					} else if ( type == "longest" ) {
+						openList = $filter('orderBy')(openList.concat(nextMoves), ["-f", "-h"]);
+						// console.log(openList);
+						// return;
+					}
+
 				};
 			};
+			return false;
+		};
 
-			function countNextSteps (x, y, lvl) {
-				let nextSteps = [];
+		//  type : longest / shortest for the different path
+		function countNextSteps (x, y, target_x, target_y, lvl, grids, type) {
+			let nextSteps = [];
 
-				var tempSteps = [
-					{x:-1, y:0},
-					{x:1, y:0},
-					{x:0, y:1},
-					{x:0, y:-1},
-				];
+			var tempSteps = [
+				{x:-1, y:0},
+				{x:1, y:0},
+				{x:0, y:1},
+				{x:0, y:-1},
+			];
 
-				angular.forEach(tempSteps, function(step){
-					var cur_x = x + step.x > tail_count-1 ? 0 : x + step.x < 0 ? tail_count-1 : x + step.x;
-					var cur_y = y + step.y > tail_count-1 ? 0 : y + step.y < 0 ? tail_count-1 : y + step.y;
-					if ( !grids[cur_x][cur_y].visited ) {
-						// Since our snake can cross the wall, so we need to count the step cost when snake cross vertically and horizontatly
-						// and use the min result for the next step
+			angular.forEach(tempSteps, function(step){
+				var cur_x = x + step.x > tail_count-1 ? 0 : x + step.x < 0 ? tail_count-1 : x + step.x;
+				var cur_y = y + step.y > tail_count-1 ? 0 : y + step.y < 0 ? tail_count-1 : y + step.y;
+				if ( !grids[cur_x][cur_y].visited ) {
+					// Since our snake can cross the wall, so we need to count the step cost when snake cross vertically and horizontatly
+					// and use the min/max result for the next step
 
-						// vertical cross h
-						var ver_h = Math.abs(cur_x - apple_x) + tail_count - Math.abs(cur_y - apple_y);
-						// horizontal cross h
-						var hor_h = tail_count - Math.abs(cur_x - apple_x) + Math.abs(cur_y- apple_y);
-						// regular h
-						var reg_h = Math.abs(cur_x - apple_x) + Math.abs(cur_y- apple_y);
-						// min h
-						var min_h = Math.min(ver_h, hor_h, reg_h);
+					// vertical cross h
+					var ver_h = Math.abs(cur_x - target_x) + tail_count - Math.abs(cur_y - target_y);
+					// horizontal cross h
+					var hor_h = tail_count - Math.abs(cur_x - target_x) + Math.abs(cur_y- target_y);
+					// regular h
+					var reg_h = Math.abs(cur_x - target_x) + Math.abs(cur_y- target_y);
+					// min h
+					var min_h = Math.min(ver_h, hor_h, reg_h);
+					var max_h = Math.max(ver_h, hor_h, reg_h);
 
-						var obj = { x : cur_x, y : cur_y, xv: cur_x - x, xy: cur_y - y, g : lvl, h : min_h };
-						obj.f = obj.g + obj.h;
-						nextSteps.push(obj);
-						grids[cur_x][cur_y].visited = true;
-					}
-				});
+					var obj = { x : cur_x, y : cur_y, xv: step.x, xy: step.y, g : lvl};
+					// base on type return the different h
+					if ( type == "longest" ) {
+						obj.h = max_h;
+					} else if ( type == "shortest" ) {
+						obj.h = min_h;
+					};
 
-				return nextSteps;
+					obj.f = obj.g + obj.h;
+					nextSteps.push(obj);
+					grids[cur_x][cur_y].visited = true;
+				}
+			});
 
-			};
+			return nextSteps;
 
-			return steps[0];
 		};
 
 	}
