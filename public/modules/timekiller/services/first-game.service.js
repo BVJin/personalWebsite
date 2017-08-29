@@ -304,7 +304,6 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 	        };
 				};
 
-        //console.log(curPart);
         curSnake.addChild(curPart);
       };
 
@@ -332,20 +331,27 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 				4. Move with the step that farthest between head and food
 			*/
 			var P1 = [], P2 = [], P3 = [];
-			if ( ai_trail.length > 1 ) {
-				var nextStep;
-				if ( findPath(ai_snake.snake_x, ai_snake.snake_y, apple_x, apple_y, ai_trail, P1, "shortest") ) {
-					// Compute the tail position after get the food
-
-					// Update the snake
-					var new_snake = angular.copy(ai_trail);
-					for (var i = 0; i < P1.length; i++) {
-						for (var j = 0; j < new_snake.length; j++) {
-							new_snake[j].x = new_snake[j].x + P1[i].xv > tail_count - 1 ? 0 : new_snake[j].x + P1[i].xv < 0 ? tail_count - 1 : new_snake[j].x + P1[i].xv;
-							new_snake[j].y = new_snake[j].y + P1[i].xy > tail_count - 1 ? 0 : new_snake[j].y + P1[i].xy < 0 ? tail_count - 1 : new_snake[j].y + P1[i].xy;
-						};
+			//if ( ai_trail.length > 0 ) {
+			var nextStep;
+			if ( findPath(ai_snake.snake_x, ai_snake.snake_y, apple_x, apple_y, ai_trail, P1, "shortest") ) {
+				// Compute the tail position after get the food
+				// Update the snake body
+				var new_snake = angular.copy(ai_trail);
+				for (var i = 0; i < P1.length; i++) {
+					for (var j = 0; j < new_snake.length; j++) {
+						new_snake[j].x = new_snake[j].x + P1[i].xv > tail_count - 1 ? 0 : new_snake[j].x + P1[i].xv < 0 ? tail_count - 1 : new_snake[j].x + P1[i].xv;
+						new_snake[j].y = new_snake[j].y + P1[i].xy > tail_count - 1 ? 0 : new_snake[j].y + P1[i].xy < 0 ? tail_count - 1 : new_snake[j].y + P1[i].xy;
 					};
+				};
+
+				
+				if ( new_snake.length == ai_tail ) {
 					console.log(new_snake);
+					console.log("origin: " + apple_x + " " + apple_y);
+					console.log("target: " + new_snake[0].x + " " + new_snake[0].y);
+					console.log(findPath(apple_x, apple_y, new_snake[0].x, new_snake[0].y, new_snake, P2, "longest"));
+					console.log(P2);
+					console.log("=========");
 					if ( findPath(apple_x, apple_y, new_snake[0].x, new_snake[0].y, new_snake, P2, "longest") ) {
 						nextStep = P1[0];
 					} else {
@@ -353,44 +359,29 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 						findPath(ai_snake.snake_x, ai_snake.snake_y, ai_trail[0].x, ai_trail[0].y, ai_trail, P3, "longest");
 						nextStep = P3[0];
 					}
-
 				} else {
-					// Since no matter P3 is existing, snake will move the farthest step for food, so move as P3
-					findPath(ai_snake.snake_x, ai_snake.snake_y, ai_trail[0].x, ai_trail[0].y, ai_trail, P3, "longest")
-					nextStep = P3[0];
-				};
+					nextStep = P1[0];
+				}
+				
+				
 
-				ai_snake.snake_x += nextStep.xv;
-				ai_snake.snake_y += nextStep.xy;
-
+			} else {
+				// Since no matter P3 is existing, snake will move the farthest step for food, so move as P3
+				findPath(ai_snake.snake_x, ai_snake.snake_y, ai_trail[0].x, ai_trail[0].y, ai_trail, P3, "longest")
+				nextStep = P3[0];
+			};
+			if (nextStep) {
+				ai_snake.snake_x = ai_snake.snake_x + nextStep.xv > tail_count - 1 ? 0 : ai_snake.snake_x + nextStep.xv < 0 ? tail_count - 1 : ai_snake.snake_x + nextStep.xv;
+				ai_snake.snake_y = ai_snake.snake_y + nextStep.xy > tail_count - 1 ? 0 : ai_snake.snake_y + nextStep.xy < 0 ? tail_count - 1 : ai_snake.snake_y + nextStep.xy;
+				
 				if (nextStep.xv == 1) ai_snake.head_direction = "right";
 				if (nextStep.xv == -1) ai_snake.head_direction = "left";
 				if (nextStep.xy == 1) ai_snake.head_direction = "down";
 				if (nextStep.xy == -1) ai_snake.head_direction = "up";
-
 			}
+			
 
-
-
-      if ( ai_snake.snake_x < 0 ) {
-          ai_snake.snake_x = tail_count - 1;
-      };
-
-      if ( ai_snake.snake_x > tail_count - 1 ) {
-          ai_snake.snake_x = 0;
-      };
-
-      if ( ai_snake.snake_y < 0 ) {
-          ai_snake.snake_y = tail_count - 1;
-      };
-
-      if ( ai_snake.snake_y > tail_count - 1 ) {
-          ai_snake.snake_y = 0;
-      };
-
-			// head direction
-			if ( nextStep ) {
-			};
+			//}
 
 
       for ( var i = 0; i < ai_trail.length; i++ ) {
@@ -433,7 +424,6 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
         if ( ai_trail[i].x == ai_snake.snake_x && ai_trail[i].y == ai_snake.snake_y ) {
           ai_tail = 5;
         };
-        //console.log(curPart);
         curAISnake.addChild(curPart);
       };
 
@@ -605,8 +595,6 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 			} else if ( type == "longest" ) {
 				openList = $filter('orderBy')(countNextSteps(origin_x, origin_y, target_x, target_y, curLvl, grids, type), ["-f", "-h"]);
 			}
-
-			//console.log(openList);
 			while( openList.length > 0 ) {
 				var nextStep = openList.shift();
 				// When the current path has higher f then the recored step, it should go back to the pervious level
@@ -615,7 +603,6 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 				steps[curLvl-1] = angular.copy(nextStep);
 				//  if hit the apple
 				if ( nextStep.x  == target_x  && nextStep.y == target_y ){
-					steps.push({x : target_x, y : target_x, xv : 0, xy : 0});
 					return true;
 				};
 
@@ -627,7 +614,6 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 						openList = $filter('orderBy')(openList.concat(nextMoves), ["f", "h"]);
 					} else if ( type == "longest" ) {
 						openList = $filter('orderBy')(openList.concat(nextMoves), ["-f", "-h"]);
-						// console.log(openList);
 						// return;
 					}
 
