@@ -7,61 +7,61 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 
 		var game_container;
 
-    var renderer, stage, id, snake = {}, ai_snake={};
-    var grid_size, tail_count, apple_x, apple_y, trail, tail, ai_trail, ai_tail;
-    var state;
+		var renderer, stage, id, snake = {}, ai_snake={};
+		var grid_size, tail_count, apple_x, apple_y, trail, tail, ai_trail, ai_tail;
+		var state;
 
 		// buttons
 		var start_button, start_text;
 		var end_box, end_text, gameEndMessgae;
 
-    this.initGame = function (container) {
-				game_container = container;
+	    this.initGame = function (container) {
+			game_container = container;
 
 
-        //Create the renderer
-        renderer = PIXI.autoDetectRenderer(
-          600, 600,
-          {antialias: false, transparent: false, resolution: 1}
-        );
-        renderer.view.style.border = "1px dashed black";
+	        //Create the renderer
+	        renderer = PIXI.autoDetectRenderer(
+	          600, 600,
+	          {antialias: false, transparent: false, resolution: 1}
+	        );
+	        renderer.view.style.border = "1px dashed black";
 
-        renderer.backgroundColor = 0xffffff;
+	        renderer.backgroundColor = 0xffffff;
 
-        //Add the canvas to the HTML document
-        game_container.appendChild(renderer.view);
+	        //Add the canvas to the HTML document
+	        game_container.appendChild(renderer.view);
 
-        //Create a container object called the `stage`
-        stage = new PIXI.Container();
+	        //Create a container object called the `stage`
+	        stage = new PIXI.Container();
 
-				// Home page buttons
-				start_button = new PIXI.Graphics();
+			// Home page buttons
+			start_button = new PIXI.Graphics();
 
-				start_button.lineStyle(2, 0x87CEFA, 1);
-				start_button.drawRoundedRect(200, 200, 200, 70, 15);
-				start_button.interactive = true;
-				start_button.buttonMode = true;
-				start_button.hitArea = start_button.getBounds();
-				start_button.click = function () {
-					initParams();
-					PIXI.loader
-	    	  .add("modules/timekiller/images/snake.json")
-	    	  .load(setup);
-				};
+			start_button.lineStyle(2, 0x87CEFA, 1);
+			start_button.drawRoundedRect(200, 200, 200, 70, 15);
+			start_button.interactive = true;
+			start_button.buttonMode = true;
+			start_button.hitArea = start_button.getBounds();
+			start_button.click = function () {
+				initParams();
+				PIXI.loader
+    	  .add("modules/timekiller/images/snake.json")
+    	  .load(setup);
+			};
 
 
-				start_text = new PIXI.Text(
-					"Play Game",
-  				{fontFamily: "Arial", fontSize: 25, fill: "#87CEFA"}
-				);
-				start_text.position.set(240, 220);
+			start_text = new PIXI.Text(
+				"Play Game",
+				{fontFamily: "Arial", fontSize: 25, fill: "#87CEFA"}
+			);
+			start_text.position.set(240, 220);
 
-				stage.addChild(start_button);
-				stage.addChild(start_text);
+			stage.addChild(start_button);
+			stage.addChild(start_text);
 
-        renderer.render(stage);
+	        renderer.render(stage);
 
-    };
+    	};
 
 		function initParams () {
 			// clean the stage
@@ -93,130 +93,125 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 				stage.removeChild(end_text);
 		};
 
-    function setup() {
+    	function setup() {
 
-      id = PIXI.loader.resources["modules/timekiller/images/snake.json"].textures;
-			//
-			// var background_road = new PIXI.Sprite(id["road-1.png"]).texture;
-			// var tilingSprite = new PIXI.extras.TilingSprite(background_road, renderer.width, renderer.height);
-			// tilingSprite.y = 100;
-			//
-			// stage.addChild(tilingSprite);
+			id = PIXI.loader.resources["modules/timekiller/images/snake.json"].textures;
 
+			// key action
+			var left= keyboard(37),
+			right = keyboard(39),
+			up = keyboard(38),
+			down = keyboard(40);
 
-      // key action
-      var left= keyboard(37),
-          right = keyboard(39),
-          up = keyboard(38),
-          down = keyboard(40);
-
-      // right
-      right.press = function() {
-        if( left.isUp && snake.x_v != -1 ) {
-          snake.x_v = 1;
-          snake.x_y = 0;
+			// right
+			right.press = function() {
+				if( left.isUp && snake.x_v != -1 ) {
+					snake.x_v = 1;
+					snake.x_y = 0;
 					snake.head_direction = "right";
-        };
+				};
 
-      };
+			};
 
-      right.release = function() {
-        // if ( worker.vy == 0 && !left.isDown) {
-        //     worker.vx = 0;
-        // };
-      }
+			right.release = function() {
+			// if ( worker.vy == 0 && !left.isDown) {
+			//     worker.vx = 0;
+			// };
+			}
 
 			// left
 			left.press = function() {
-        if ( right.isUp && snake.x_v != 1 ) {
-          snake.x_v = -1;
-          snake.x_y = 0;
+				if ( right.isUp && snake.x_v != 1 ) {
+					snake.x_v = -1;
+					snake.x_y = 0;
 					snake.head_direction = "left";
-        };
+				};
 
-      };
-
-      left.release = function() {
-        // if ( worker.vy == 0 && !right.isDown) {
-        //     worker.vx = 0;
-        // };
-      }
-
-      // up
-			up.press = function() {
-        if ( down.isUp && snake.x_y != 1 ) {
-          snake.x_v = 0;
-          snake.x_y = -1;
-					snake.head_direction = "up";
-        };
-
-      };
-
-      up.release = function() {
-        // if ( worker.vy == 0 && !right.isDown) {
-        //     worker.vx = 0;
-        // };
-      }
-
-      // up
-			down.press = function() {
-        if ( up.isUp && snake.x_y != -1 ) {
-          snake.x_v = 0;
-          snake.x_y = 1;
-					snake.head_direction = "down";
-        };
-
-      };
-
-      down.release = function() {
-        // if ( worker.vy == 0 && !right.isDown) {
-        //     worker.vx = 0;
-        // };
-      }
-
-
-      //Set the game state
-      state = play;
-			//findPath();
-      gameLoop();
-    };
-
-    var curSnake, curAISnake, curApple, curMess;
-		var isGameEnd = false;
-    function gameLoop() {
-      setTimeout(function() {
-        requestAnimationFrame(gameLoop);
-      }, 1000 / 30)
-			if ( !isGameEnd ) {
-	      state();
 			};
 
-      //stage.addChild(curSnake);
+			left.release = function() {
+			// if ( worker.vy == 0 && !right.isDown) {
+			//     worker.vx = 0;
+			// };
+			}
+
+			// up
+			up.press = function() {
+				if ( down.isUp && snake.x_y != 1 ) {
+					snake.x_v = 0;
+					snake.x_y = -1;
+					snake.head_direction = "up";
+				};
+
+			};
+
+			up.release = function() {
+			// if ( worker.vy == 0 && !right.isDown) {
+			//     worker.vx = 0;
+			// };
+			}
+
+			// up
+			down.press = function() {
+				if ( up.isUp && snake.x_y != -1 ) {
+					snake.x_v = 0;
+					snake.x_y = 1;
+					snake.head_direction = "down";
+				};
+
+			};
+
+			down.release = function() {
+			// if ( worker.vy == 0 && !right.isDown) {
+			//     worker.vx = 0;
+			// };
+			}
+
+			//Set the game state
+			state = play;
+			//findPath();
+			gameLoop();
+    	};
+
+    	// Containers for each componet on tage
+    	var curSnake, curAISnake, curApple, curMess;
+		var isGameEnd = false;
+
+	    function gameLoop() {
+			setTimeout(function() {
+				requestAnimationFrame(gameLoop);
+			}, 1000 / 30);
+
+			if ( !isGameEnd ) {
+	      		state();
+			};
+
+	      	//stage.addChild(curSnake);
 			stage.addChild(curAISnake);
-      stage.addChild(curApple);
-      stage.addChild(curMess);
-      renderer.render(stage);
-    }
+		    stage.addChild(curApple);
+		    stage.addChild(curMess);
+		    renderer.render(stage);
+	    }
 
-    function play() {
+	    function play() {
 
-      //  Remove child cotainers instead of destory the container
-      //stage.removeChild(curSnake);
+	      	//  Remove child cotainers instead of destory the container
+			//stage.removeChild(curSnake);
 			stage.removeChild(curAISnake);
-      stage.removeChild(curApple);
-      stage.removeChild(curMess);
+			stage.removeChild(curApple);
+			stage.removeChild(curMess);
 
-      //  Re define those containers
-      //curSnake = new PIXI.Container();
+			//  Re define those containers
+			//curSnake = new PIXI.Container();
 			curAISnake = new PIXI.Container();
-      curApple = new PIXI.Container();
-      curMess = new PIXI.Container();
+	      	curApple = new PIXI.Container();
+	      	curMess = new PIXI.Container();
 
 			//setUpPlayerSnake();
 			setUpAISnake();
 			setUpApple();
 			setUpGameMessgae();
-    }
+	    }
 
 
 		/*
@@ -224,96 +219,96 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 		*/
 		function setUpPlayerSnake() {
 			// ========= Set up snake =========
-	    snake.snake_x += snake.x_v;
-      snake.snake_y += snake.x_y;
+			snake.snake_x += snake.x_v;
+	    	snake.snake_y += snake.x_y;
 
-      if ( snake.snake_x < 0 ) {
-          snake.snake_x = tail_count - 1;
-      };
+			if ( snake.snake_x < 0 ) {
+			  snake.snake_x = tail_count - 1;
+			};
 
-      if ( snake.snake_x > tail_count - 1 ) {
-          snake.snake_x = 0;
-      };
+			if ( snake.snake_x > tail_count - 1 ) {
+			  snake.snake_x = 0;
+			};
 
-      if ( snake.snake_y < 0 ) {
-          snake.snake_y = tail_count - 1;
-      };
+			if ( snake.snake_y < 0 ) {
+			  snake.snake_y = tail_count - 1;
+			};
 
-      if ( snake.snake_y > tail_count - 1 ) {
-          snake.snake_y = 0;
-      };
+			if ( snake.snake_y > tail_count - 1 ) {
+			  snake.snake_y = 0;
+			};
 
-      for ( var i = 0; i < trail.length; i++ ) {
-        var curPart;
+			for ( var i = 0; i < trail.length; i++ ) {
+			var curPart;
 
-				// Tail direction is not like head, it can't be decided by the button press, since it
-				// will change the direction until the tail's x y changed, before that, follow the
-				// previous direction.
-				if ( i == 0 ) {
-					// Initial previous x and y of snake's tail
-					snake.tail_px = snake.tail_px ? snake.tail_px : trail[0].x;
-					snake.tail_py = snake.tail_py? snake.tail_py : trail[0].y;
+			// Tail direction is not like head, it can't be decided by the button press, since it
+			// will change the direction until the tail's x y changed, before that, follow the
+			// previous direction.
+			if ( i == 0 ) {
+				// Initial previous x and y of snake's tail
+				snake.tail_px = snake.tail_px ? snake.tail_px : trail[0].x;
+				snake.tail_py = snake.tail_py? snake.tail_py : trail[0].y;
 
-					if ( snake.tail_px == trail[0].x + 1 ) {
-						snake.tail_direction = "left";
-					} else if ( snake.tail_px == trail[0].x - 1 ) {
-						snake.tail_direction = "right";
-					} else if ( snake.tail_py == trail[0].y + 1 ) {
-						snake.tail_direction = "up";
-					} else if ( snake.tail_py == trail[0].y - 1 ) {
-						snake.tail_direction = "down";
-					} else {
-						snake.tail_direction = "right";
+				if ( snake.tail_px == trail[0].x + 1 ) {
+					snake.tail_direction = "left";
+				} else if ( snake.tail_px == trail[0].x - 1 ) {
+					snake.tail_direction = "right";
+				} else if ( snake.tail_py == trail[0].y + 1 ) {
+					snake.tail_direction = "up";
+				} else if ( snake.tail_py == trail[0].y - 1 ) {
+					snake.tail_direction = "down";
+				} else {
+					snake.tail_direction = "right";
+				}
+
+				snake.tail_px = trail[0].x;
+				snake.tail_py = trail[0].y;
+
+				curPart = new PIXI.Sprite(id["snake-tail-" + snake.tail_direction + ".png"]);
+			} else if ( i == trail.length - 1 ) {
+			  	curPart = new PIXI.Sprite(id["snake-head-" + snake.head_direction + ".png"]);
+			} else {
+			 	curPart = new PIXI.Sprite(id["snake-body.png"]);
+			};
+
+			curPart.width = grid_size;
+			curPart.height = grid_size;
+			curPart.position.set(trail[i].x * grid_size, trail[i].y * grid_size);
+
+					//  if hit own'body
+			if ( trail[i].x == snake.snake_x && trail[i].y == snake.snake_y ) {
+				gameEndMessgae = "AI won, you score is " + tail + ", AI score is " + ai_tail;
+				endGame();
+			};
+
+			// if hit the AI's body
+			for ( var j = 0; j < ai_trail.length; j++ ) {
+				if ( ai_trail[j].x == snake.snake_x && ai_trail[j].y == snake.snake_y ) {
+					//  if it is head to head, compare the length
+					if ( j == ai_trail.lenght - 1 ) {
+						if ( ai_tail > tail ) {
+							gameEndMessgae =  "AI won, you score is " + tail + ", AI score is " + ai_tail;
+						} else if ( ai_tail < tail ) {
+							gameEndMessgae =  "You won, you score is " + tail + ", AI score is " + ai_tail;
+						} else {
+							gameEndMessgae =  "Draw, you score is " + tail + ", AI score is " + ai_tail;
+						};
 					}
-
-					snake.tail_px = trail[0].x;
-					snake.tail_py = trail[0].y;
-
-					curPart = new PIXI.Sprite(id["snake-tail-" + snake.tail_direction + ".png"]);
-				} else if ( i == trail.length - 1 ) {
-          curPart = new PIXI.Sprite(id["snake-head-" + snake.head_direction + ".png"]);
-        } else {
-          curPart = new PIXI.Sprite(id["snake-body.png"]);
-        };
-
-				curPart.width = grid_size;
-				curPart.height = grid_size;
-				curPart.position.set(trail[i].x * grid_size, trail[i].y * grid_size);
-
-				//  if hit own'body
-        if ( trail[i].x == snake.snake_x && trail[i].y == snake.snake_y ) {
 					gameEndMessgae = "AI won, you score is " + tail + ", AI score is " + ai_tail;
 					endGame();
-        };
-				// if hit the AI's body
-				for ( var j = 0; j < ai_trail.length; j++ ) {
-					if ( ai_trail[j].x == snake.snake_x && ai_trail[j].y == snake.snake_y ) {
-						//  if it is head to head, compare the length
-						if ( j == ai_trail.lenght - 1 ) {
-							if ( ai_tail > tail ) {
-								gameEndMessgae =  "AI won, you score is " + tail + ", AI score is " + ai_tail;
-							} else if ( ai_tail < tail ) {
-								gameEndMessgae =  "You won, you score is " + tail + ", AI score is " + ai_tail;
-							} else {
-								gameEndMessgae =  "Draw, you score is " + tail + ", AI score is " + ai_tail;
-							};
-						}
-						gameEndMessgae = "AI won, you score is " + tail + ", AI score is " + ai_tail;
-	          //tail = 5;
-						endGame();
-	        };
-				};
+			    };
+			};
 
-        curSnake.addChild(curPart);
-      };
+			curSnake.addChild(curPart);
 
-      // move the snake
-      trail.push({x:snake.snake_x, y: snake.snake_y});
+			};
 
-      while ( trail.length > tail ) {
-        trail.shift();
-      };
+			// move the snake
+			trail.push({x:snake.snake_x, y: snake.snake_y});
 
+			while ( trail.length > tail ) {
+				trail.shift();
+			};
 		};
 
 		function setUpAISnake() {
@@ -333,6 +328,7 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 			var P1 = [], P2 = [], P3 = [];
 			//if ( ai_trail.length > 0 ) {
 			var nextStep;
+
 			if ( findPath(ai_snake.snake_x, ai_snake.snake_y, apple_x, apple_y, ai_trail, P1, "shortest") ) {
 				// Compute the tail position after get the food
 				// Update the snake body
@@ -345,7 +341,7 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 				};
 
 				
-				if ( new_snake.length == ai_tail ) {
+				if ( new_snake.length >= ai_tail ) {
 					console.log(new_snake);
 					console.log("origin: " + apple_x + " " + apple_y);
 					console.log("target: " + new_snake[0].x + " " + new_snake[0].y);
@@ -370,6 +366,7 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 				findPath(ai_snake.snake_x, ai_snake.snake_y, ai_trail[0].x, ai_trail[0].y, ai_trail, P3, "longest")
 				nextStep = P3[0];
 			};
+
 			if (nextStep) {
 				ai_snake.snake_x = ai_snake.snake_x + nextStep.xv > tail_count - 1 ? 0 : ai_snake.snake_x + nextStep.xv < 0 ? tail_count - 1 : ai_snake.snake_x + nextStep.xv;
 				ai_snake.snake_y = ai_snake.snake_y + nextStep.xy > tail_count - 1 ? 0 : ai_snake.snake_y + nextStep.xy < 0 ? tail_count - 1 : ai_snake.snake_y + nextStep.xy;
@@ -378,14 +375,14 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 				if (nextStep.xv == -1) ai_snake.head_direction = "left";
 				if (nextStep.xy == 1) ai_snake.head_direction = "down";
 				if (nextStep.xy == -1) ai_snake.head_direction = "up";
-			}
-			
+			};
+				
 
-			//}
+				//}
 
 
-      for ( var i = 0; i < ai_trail.length; i++ ) {
-        var curPart;
+	      	for ( var i = 0; i < ai_trail.length; i++ ) {
+	        	var curPart;
 
 				// Tail direction is not like head, it can't be decided by the button press, since it
 				// will change the direction until the tail's x y changed, before that, follow the
@@ -412,28 +409,29 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 
 					curPart = new PIXI.Sprite(id["snake-tail-" + ai_snake.tail_direction + ".png"]);
 				} else if ( i == ai_trail.length - 1 ) {
-          curPart = new PIXI.Sprite(id["snake-head-" + ai_snake.head_direction + ".png"]);
-        } else {
-          curPart = new PIXI.Sprite(id["snake-body.png"]);
-        };
+		          curPart = new PIXI.Sprite(id["snake-head-" + ai_snake.head_direction + ".png"]);
+		        } else {
+		          curPart = new PIXI.Sprite(id["snake-body.png"]);
+	        	};
 
 				curPart.width = grid_size;
 				curPart.height = grid_size;
 				curPart.position.set(ai_trail[i].x * grid_size, ai_trail[i].y * grid_size);
 
-        if ( ai_trail[i].x == ai_snake.snake_x && ai_trail[i].y == ai_snake.snake_y ) {
-          ai_tail = 5;
-        };
-        curAISnake.addChild(curPart);
-      };
+			    if ( ai_trail[i].x == ai_snake.snake_x && ai_trail[i].y == ai_snake.snake_y ) {
+			    	// ai_tail = 5;
+			    	endGame();
+			    };
 
-      // move the snake
-      ai_trail.push({x:ai_snake.snake_x, y: ai_snake.snake_y});
+	        	curAISnake.addChild(curPart);
+	      	};
 
-      while ( ai_trail.length > ai_tail ) {
-        ai_trail.shift();
-      };
+			// move the snake
+			ai_trail.push({x:ai_snake.snake_x, y: ai_snake.snake_y});
 
+			while ( ai_trail.length > ai_tail ) {
+				ai_trail.shift();
+			};
 		};
 
 		function setUpApple() {
@@ -480,7 +478,6 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 			apple.height = grid_size;
 			apple.position.set(apple_x * grid_size, apple_y  * grid_size);
 			curApple.addChild(apple);
-
 		};
 
 		function setUpGameMessgae() {
@@ -522,42 +519,42 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 			stage.addChild(end_text);
 		}
 
-    function keyboard(keyCode) {
-      var key = {};
-      key.code = keyCode;
-      key.isDown = false;
-      key.isUp = true;
-      key.press = undefined;
-      key.release = undefined;
-      //The `downHandler`
-      key.downHandler = function(event) {
-        if (event.keyCode === key.code) {
-          if (key.isUp && key.press) key.press();
-          key.isDown = true;
-          key.isUp = false;
-        }
-        event.preventDefault();
-      };
+	    function keyboard(keyCode) {
+			var key = {};
+			key.code = keyCode;
+			key.isDown = false;
+			key.isUp = true;
+			key.press = undefined;
+			key.release = undefined;
+			//The `downHandler`
+			key.downHandler = function(event) {
+				if (event.keyCode === key.code) {
+				  if (key.isUp && key.press) key.press();
+					  key.isDown = true;
+					  key.isUp = false;
+				}
+				event.preventDefault();
+			};
 
-      //The `upHandler`
-      key.upHandler = function(event) {
-        if (event.keyCode === key.code) {
-          if (key.isDown && key.release) key.release();
-          key.isDown = false;
-          key.isUp = true;
-        }
-        event.preventDefault();
-      };
+			//The `upHandler`
+			key.upHandler = function(event) {
+				if (event.keyCode === key.code) {
+					if (key.isDown && key.release) key.release();
+						key.isDown = false;
+						key.isUp = true;
+				}
+				event.preventDefault();
+			};
 
-      //Attach event listeners
-      window.addEventListener(
-        "keydown", key.downHandler.bind(key), false
-      );
-      window.addEventListener(
-        "keyup", key.upHandler.bind(key), false
-      );
-      return key;
-    };
+			//Attach event listeners
+			window.addEventListener(
+				"keydown", key.downHandler.bind(key), false
+			);
+			window.addEventListener(
+				"keyup", key.upHandler.bind(key), false
+			);
+			return key;
+		};
 
 
 		/*
@@ -578,22 +575,24 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 				}
 
 			};
-			grids[origin_x][origin_y].visited = true;
-
 			// avoid to kill itself
 			for ( var i = 0; i < curSnakeTrail.length; i++ ) {
 				grids[curSnakeTrail[i].x][curSnakeTrail[i].y].visited = true;
 			};
+
 			// avido to hit the player snake
 			// for ( var i = 0; i < trail.length; i++ ) {
 			// 	grids[trail[i].x][trail[i].y].visited = true;
 			// };
 
+			grids[origin_x][origin_y].visited = true;
+			grids[target_x][target_y].visited = false;
+
 			// Intial the first step base on type
 			if ( type == "shortest" ) {
 				openList = $filter('orderBy')(countNextSteps(origin_x, origin_y, target_x, target_y, curLvl, grids, type), ["f", "h"]);
 			} else if ( type == "longest" ) {
-				openList = $filter('orderBy')(countNextSteps(origin_x, origin_y, target_x, target_y, curLvl, grids, type), ["-f", "-h"]);
+				openList = $filter('orderBy')(countNextSteps(origin_x, origin_y, target_x, target_y, curLvl, grids, type), ["g"]);
 			}
 			while( openList.length > 0 ) {
 				var nextStep = openList.shift();
@@ -613,7 +612,7 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 					if ( type == "shortest" ) {
 						openList = $filter('orderBy')(openList.concat(nextMoves), ["f", "h"]);
 					} else if ( type == "longest" ) {
-						openList = $filter('orderBy')(openList.concat(nextMoves), ["-f", "-h"]);
+						openList = $filter('orderBy')(openList.concat(nextMoves), ["g"]);
 						// return;
 					}
 
@@ -663,7 +662,6 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 					grids[cur_x][cur_y].visited = true;
 				}
 			});
-
 			return nextSteps;
 
 		};
