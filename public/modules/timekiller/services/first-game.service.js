@@ -45,8 +45,8 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 			start_button.click = function () {
 				initParams();
 				PIXI.loader
-    	  .add("modules/timekiller/images/snake.json")
-    	  .load(setup);
+				.add("modules/timekiller/images/snake.json")
+				.load(setup);
 			};
 
 
@@ -321,15 +321,21 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 			// If all options are not avaiable, move with step farthest from head to food.
 			/* =========== steps ==========
 				1. Shorest path P1 from head to food, yes, go to 2, no, go to 3
-				2. After snake get the food, longest path P2 from head to tail, yes, move with shortest path, no, go to 3
-				3. Before snake get the food, Longest path P3 from head to tail, yes, move with the longest path, no, go to 4
+				2. After snake get the food, longest path P2 from head to tail, yes, move with P1 shortest path, no, go to 3
+				3. Before snake get the food, longest path P3 from head to tail, yes, move with the P3 longest path, no, go to 4
 				4. Move with the step that farthest between head and food
+			   ============================
+			   P1 --> shortest path, snake head to apple
+			   P2 --> shortest path, snake after eating apple, head to tail
+			   P3 --> longest path,  snake after eating apple, head to tail
+			   P4 --> shortest path, snake head to tail (for computing the longest path)
+			   P5 --> longest path,  snake head to tail
 			*/
-			var P1 = [], P2 = [], P3 = [];
+			var P1 = [], P2 = [], P3 = [], P4 = [], P5=[];
 			//if ( ai_trail.length > 0 ) {
 			var nextStep;
 
-			if ( findPath(ai_snake.snake_x, ai_snake.snake_y, apple_x, apple_y, ai_trail, P1, "shortest") ) {
+			if ( findShortestPath(ai_snake.snake_x, ai_snake.snake_y, apple_x, apple_y, ai_trail, P1) ) {
 				// Compute the tail position after get the food
 				// Update the snake body
 				var new_snake = angular.copy(ai_trail);
@@ -340,21 +346,25 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 					};
 				};
 
-				
+				// If snake is not built completely move with shortesr path
 				if ( new_snake.length >= ai_tail ) {
-					console.log(new_snake);
-					console.log("origin: " + apple_x + " " + apple_y);
-					console.log("target: " + new_snake[0].x + " " + new_snake[0].y);
-					console.log(findPath(apple_x, apple_y, new_snake[0].x, new_snake[0].y, new_snake, P2, "longest"));
-					console.log(P2);
-					console.log("=========");
-					if ( findPath(apple_x, apple_y, new_snake[0].x, new_snake[0].y, new_snake, P2, "longest") ) {
+					// console.log(new_snake);
+					// console.log("origin: " + apple_x + " " + apple_y);
+					// console.log("target: " + new_snake[0].x + " " + new_snake[0].y);
+					// console.log(findPath(apple_x, apple_y, new_snake[0].x, new_snake[0].y, new_snake, P2, "longest"));
+					// console.log(P2);
+					// console.log("=========");
+					// If no shortest path means no longest path, the worst case shortest path = longest path
+					if ( findShortestPath(apple_x, apple_y, new_snake[0].x, new_snake[0].y, new_snake, P2) ) {
 						nextStep = P1[0];
 					} else {
-						// Since no matter P3 is existing, snake will move the farthest step for food, so move as P3
-						findPath(ai_snake.snake_x, ai_snake.snake_y, ai_trail[0].x, ai_trail[0].y, ai_trail, P3, "longest");
-						nextStep = P3[0];
-					}
+						// no matter there is path from head to tail, the snake will move with longest/farthest path to food
+						findShortestPath(ai_snake.snake_x, ai_snake.snake_y, ai_trail[0].x, ai_trail[0].y, ai_trail, P4);						
+						findLongestPath(ai_snake.snake_x, ai_snake.snake_y, ai_trail[0].x, ai_trail[0].y, ai_trail, P4, P5);
+						console.log(P4);
+						console.log(P5);
+						nextStep = P5[0];
+					};
 				} else {
 					nextStep = P1[0];
 				}
@@ -362,9 +372,12 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 				
 
 			} else {
-				// Since no matter P3 is existing, snake will move the farthest step for food, so move as P3
-				findPath(ai_snake.snake_x, ai_snake.snake_y, ai_trail[0].x, ai_trail[0].y, ai_trail, P3, "longest")
-				nextStep = P3[0];
+				// no matter there is path from head to tail, the snake will move with longest/farthest path to food
+				findShortestPath(ai_snake.snake_x, ai_snake.snake_y, ai_trail[0].x, ai_trail[0].y, ai_trail, P4);
+				findLongestPath(ai_snake.snake_x, ai_snake.snake_y, ai_trail[0].x, ai_trail[0].y, ai_trail, P4, P5);
+				console.log(P4);
+				console.log(P5);
+				nextStep = P5[0];
 			};
 
 			if (nextStep) {
@@ -560,8 +573,9 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 		/*
 			AI snake algorithm, base on A star and Graph Search
 		*/
-		// A star path finding
-		function findPath (origin_x, origin_y, target_x, target_y, curSnakeTrail, steps, type) {
+		// A star path finding for shortest path
+		// Hamilton cycle for longest path
+		function findShortestPath (origin_x, origin_y, target_x, target_y, curSnakeTrail, steps) {
 			// open list will get all the possible steps and compare the least f out of here
 			var openList = [];
 
@@ -589,11 +603,8 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 			grids[target_x][target_y].visited = false;
 
 			// Intial the first step base on type
-			if ( type == "shortest" ) {
-				openList = $filter('orderBy')(countNextSteps(origin_x, origin_y, target_x, target_y, curLvl, grids, type), ["f", "h"]);
-			} else if ( type == "longest" ) {
-				openList = $filter('orderBy')(countNextSteps(origin_x, origin_y, target_x, target_y, curLvl, grids, type), ["g"]);
-			}
+			openList = $filter('orderBy')(countNextSteps(origin_x, origin_y, target_x, target_y, curLvl, grids), ["f", "h"]);
+			// A star shortest path finding algorithm
 			while( openList.length > 0 ) {
 				var nextStep = openList.shift();
 				// When the current path has higher f then the recored step, it should go back to the pervious level
@@ -605,31 +616,173 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 					return true;
 				};
 
-				var nextMoves = countNextSteps(nextStep.x, nextStep.y, target_x, target_y, curLvl + 1, grids, type);
+				var nextMoves = countNextSteps(nextStep.x, nextStep.y, target_x, target_y, curLvl + 1, grids);
 
 				// if there is next move
 				if ( nextMoves.length > 0 ) {
-					if ( type == "shortest" ) {
-						openList = $filter('orderBy')(openList.concat(nextMoves), ["f", "h"]);
-					} else if ( type == "longest" ) {
-						openList = $filter('orderBy')(openList.concat(nextMoves), ["g"]);
-						// return;
-					}
-
+					openList = $filter('orderBy')(openList.concat(nextMoves), ["f", "h"]);
 				};
 			};
 			return false;
+			
+		};
+		// Since the find longest path is a NP-hard problem, so we need use some heuristic function to find the "longest" path
+		// Hamilton path backtracking
+		// x y 				 --> start vertex coordinate
+		// target_x target_y --> end vertex corrdinate
+		// lvl 				 --> how many steps have been taken
+		// grids 			 --> record visited status
+		// goal 			 --> how many vertexs we are planning to visit (all the grids except snake's body and head)
+		// steps 			 --> record theh hamilton path
+		function hamiltonCycle ( x, y, target_x, target_y, lvl, grids, goal, steps ) {
+			// If this is the last step and the last step is right on the target, means the hamilton path is existing
+			if ( lvl == goal - 1 ) {
+				if ( steps[goal-1] && steps[goal-1].x == target_x && steps[goal-1].y == target_y ) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+
+			let nextSteps = countNextSteps(x, y, target_x, target_y, lvl, grids, "longest");
+
+			// Go through all the next steps
+			angular.forEach(nextSteps, function(nextStep){
+				if (lvl != goal-2 && (nextStep.x == target_x && nextStep.y == target_y))
+					return false;
+				// Set the current step's visited status as true to avoid visit again
+				grids[nextStep.x][nextStep.y].visited = true;
+				steps[lvl] = nextStep;
+				// console.log(lvl + " " + goal);
+				// console.log(nextSteps);
+				// console.log(steps);
+				// console.log("=======");
+				// if find the path
+				if ( hamiltonCycle(nextStep.x, nextStep.y, target_x, target_y, lvl+1, grids, goal, steps) ) {
+					return true;
+				}; 
+				// if not find the path, reverse the process, which means set the previous step at grid as false
+				// and remove the step in steps (not necessary acutally, it will get overwritten)
+				grids[nextStep.x][nextStep.y].visited = false;
+				steps[lvl] = null;
+
+			});
+
+			return false;
 		};
 
-		//  type : longest / shortest for the different path
-		function countNextSteps (x, y, target_x, target_y, lvl, grids, type) {
+		//	Find the shorest path first and then extend every pair that is able to extend 
+		function findLongestPath ( origin_x, origin_y, target_x, target_y, curSnakeTrail, shortPath, longPath ) {
+			longPath = angular.copy(shortPath);
+			//  Add the start vertex to the path
+			longPath.unshift({x:origin_x, y:origin_y});
+
+			var grids = []; // grid size
+			for ( var i = 0; i < tail_count; i++ ) {
+				grids[i] = [];
+				for ( var j = 0; j < tail_count; j++ ) {
+					grids[i].push({"visited" : false});
+				}
+
+			};
+			// avoid to kill itself
+			for ( var i = 0; i < curSnakeTrail.length; i++ ) {
+				grids[curSnakeTrail[i].x][curSnakeTrail[i].y].visited = true;
+			};
+
+			// set the short path as visted
+			for ( var i = 0; i < longPath.length; i++ ) {
+				grids[longPath[i].x][longPath[i].y].visited = true;
+			};
+
+			//  if index is equal the last step, means there is no more to extend
+			var index = 0;
+			console.log("Find longest path ------ ");
+			console.log(longPath);
+			console.log("before --------");
+			while ( index != longPath.length - 1 ) {
+				for ( index = 0; index < longPath.length; index++ ) {
+					if ( index == longPath.length - 1 ) {
+						break;
+					} else {
+						// if we have the extend steps, we insert it into index and index + 1
+						// and then redo the while
+						let extend_steps = [];
+						if ( ifInsert(extend_steps, grids, index, longPath) ) {
+
+							angular.forEach(extend_steps, function(step){
+								grids[step.x][step.y].visited = true;
+							});
+
+							longPath = longPath.slice(0, index + 1).concat(extend_steps).concat(longPath.slice(index + 1));
+							console.log(longPath);
+							break
+						};
+
+					};
+
+				};
+			};
+			console.log("after --------");
+			console.log(longPath);
+			console.log("Find longest path end ------ ");
+
+		};
+
+		//  If the grid can take the two steps to next one, it is considered as a extension
+		function ifInsert ( extend_steps, grids, index, longPath ) {
+			var tempSteps = [
+				{x:-1, y:0},
+				{x:1, y:0},
+				{x:0, y:1},
+				{x:0, y:-1}
+			];
+
+			angular.forEach(tempSteps, function (step1) {
+				// first step
+				var firstStep = {
+					x : longPath[index].x + step1.x > tail_count-1 ? 0 : longPath[index].x + step1.x < 0 ? tail_count-1 : longPath[index].x + step1.x,
+					y : longPath[index].y + step1.y > tail_count-1 ? 0 : longPath[index].y + step1.y < 0 ? tail_count-1 : longPath[index].y + step1.y
+				};
+
+				if ( !grids[firstStep.x][firstStep.y].visited ) {
+					angular.forEach(tempSteps, function (step2) {
+						// second step
+						var secondStep = {
+							x : firstStep.x + step2.x > tail_count-1 ? 0 : firstStep.x + step2.x < 0 ? tail_count-1 : firstStep.x + step2.x,
+							y : firstStep.y + step2.y > tail_count-1 ? 0 : firstStep.y + step2.y < 0 ? tail_count-1 : firstStep.y + step2.y
+						};
+
+						//  if second step can hit the next path step with one hit
+						if ( !grids[secondStep.x][secondStep.y].visited && 
+							( (Math.abs(secondStep.x - longPath[index+1].x) == 1 && secondStep.y == longPath[index+1].y) || (Math.abs(secondStep.y - longPath[index+1].y) == 1 && secondStep.x == longPath[index+1].x) ) ) {
+							extend_steps.push(firstStep);
+							extend_steps.push(secondStep);
+							return true
+						};
+
+					});
+
+				};
+
+			});
+
+			return false;
+
+		};
+
+		//  Type is not matter's here because if we are finding the longest path
+		//  the only thing matter is the coordinates x and y, the rest will just for the A star algorithm
+		//  But for the grids visted true/false, since hamilton cycle is doing the recursion, we should set
+		//  the true/false inside of algorithm
+		function countNextSteps (x, y, target_x, target_y, lvl, grids) {
 			let nextSteps = [];
 
 			var tempSteps = [
 				{x:-1, y:0},
 				{x:1, y:0},
 				{x:0, y:1},
-				{x:0, y:-1},
+				{x:0, y:-1}
 			];
 
 			angular.forEach(tempSteps, function(step){
@@ -650,12 +803,8 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 					var max_h = Math.max(ver_h, hor_h, reg_h);
 
 					var obj = { x : cur_x, y : cur_y, xv: step.x, xy: step.y, g : lvl};
-					// base on type return the different h
-					if ( type == "longest" ) {
-						obj.h = max_h;
-					} else if ( type == "shortest" ) {
-						obj.h = min_h;
-					};
+
+					obj.h = min_h;
 
 					obj.f = obj.g + obj.h;
 					nextSteps.push(obj);
@@ -665,6 +814,8 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 			return nextSteps;
 
 		};
+
+		
 
 	}
 ]);
