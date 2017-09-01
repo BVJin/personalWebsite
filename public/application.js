@@ -6,7 +6,7 @@ angular.module(ApplicationConfiguration.applicationModuleName, ApplicationConfig
 // Setting HTML5 Location Mode
 angular.module(ApplicationConfiguration.applicationModuleName).config(['$locationProvider','$httpProvider',
 	function($locationProvider,$httpProvider) {
-		$locationProvider.hashPrefix('!');
+		//$locationProvider.hashPrefix('!');
 
 		//withCredentials = true will include cookie to header
 		$httpProvider.defaults.withCredentials = true;
@@ -16,7 +16,7 @@ angular.module(ApplicationConfiguration.applicationModuleName).config(['$locatio
 //Then define the init function for starting up the application
 angular.element(document).ready(function() {
 	//Fixing facebook bug with redirect
-	if (window.location.hash === '#_=_') window.location.hash = '#!';
+	if (window.location.hash === '#_=_') window.location.hash = '#';
 
 	//Then init the app
 	angular.bootstrap(document, [ApplicationConfiguration.applicationModuleName]);
