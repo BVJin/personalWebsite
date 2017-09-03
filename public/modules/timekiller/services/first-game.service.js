@@ -180,13 +180,13 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 	    function gameLoop() {
 			setTimeout(function() {
 				requestAnimationFrame(gameLoop);
-			}, 1000 / 90);
+			}, 1000 / 15);
 
 			if ( !isGameEnd ) {
 	      		state();
 			};
 
-	      	//stage.addChild(curSnake);
+	      	stage.addChild(curSnake);
 			stage.addChild(curAISnake);
 		    stage.addChild(curApple);
 		    stage.addChild(curMess);
@@ -196,18 +196,18 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 	    function play() {
 
 	      	//  Remove child cotainers instead of destory the container
-			//stage.removeChild(curSnake);
+			stage.removeChild(curSnake);
 			stage.removeChild(curAISnake);
 			stage.removeChild(curApple);
 			stage.removeChild(curMess);
 
 			//  Re define those containers
-			//curSnake = new PIXI.Container();
+			curSnake = new PIXI.Container();
 			curAISnake = new PIXI.Container();
 	      	curApple = new PIXI.Container();
 	      	curMess = new PIXI.Container();
 
-			//setUpPlayerSnake();
+			setUpPlayerSnake();
 			setUpAISnake();
 			setUpApple();
 			setUpGameMessgae();
@@ -334,7 +334,7 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 			var P1 = [], P2 = [], P3 = [], P4 = [], P5=[];
 			//if ( ai_trail.length > 0 ) {
 			var nextStep;
-			console.log("Snake Head==== " + ai_snake.snake_x + " " + ai_snake.snake_y);
+
 			if ( findShortestPath(ai_snake.snake_x, ai_snake.snake_y, apple_x, apple_y, ai_trail, P1) ) {
 				// If snake is not built completely move with shortesr path
 				if ( ai_trail.length >= 5 ) {
@@ -350,11 +350,6 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 					// If no shortest path means no longest path, the worst case shortest path = longest path
 					if ( findShortestPath(apple_x, apple_y, new_snake[0].x, new_snake[0].y, new_snake, P2) ) {
 						nextStep = P1[0];
-						// console.log("target coord: " + apple_x + " " + apple_y);
-						// console.log(new_snake);
-						// console.log(P1);
-						// console.log(P2);
-						// console.log(-1);
 					} else {
 						if ( findShortestPath(ai_snake.snake_x, ai_snake.snake_y, ai_trail[0].x, ai_trail[0].y, ai_trail, P4) ) {
 							P5 = findLongestPath(ai_snake.snake_x, ai_snake.snake_y, ai_trail[0].x, ai_trail[0].y, ai_trail, P4);
@@ -363,10 +358,8 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 							} else {
 								nextStep = countFarthestSteps(ai_snake.snake_x, ai_snake.snake_y, apple_x, apple_y, ai_trail, true);
 							}
-							console.log(1);
 						} else {
 							nextStep = countFarthestSteps(ai_snake.snake_x, ai_snake.snake_y, apple_x, apple_y, ai_trail, true);
-							console.log(2);
 						}	
 					};
 				} else {
@@ -383,14 +376,11 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 					} else {
 						nextStep = countFarthestSteps(ai_snake.snake_x, ai_snake.snake_y, apple_x, apple_y, ai_trail, false);
 					}
-					console.log(3);
 				} else {
 					nextStep = countFarthestSteps(ai_snake.snake_x, ai_snake.snake_y, apple_x, apple_y, ai_trail, false);
-					console.log(4);
 				}				
 			};
 
-			console.log(nextStep);
 			if (nextStep) {
 				ai_snake.snake_x = ai_snake.snake_x + nextStep.xv > tail_count - 1 ? 0 : ai_snake.snake_x + nextStep.xv < 0 ? tail_count - 1 : ai_snake.snake_x + nextStep.xv;
 				ai_snake.snake_y = ai_snake.snake_y + nextStep.xy > tail_count - 1 ? 0 : ai_snake.snake_y + nextStep.xy < 0 ? tail_count - 1 : ai_snake.snake_y + nextStep.xy;
@@ -493,7 +483,6 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 			// AI takes the target
 			if ( apple_x == ai_snake.snake_x && apple_y == ai_snake.snake_y ) {
 				ai_tail++;
-				console.log("apple === " + angular.copy(apple_x) + " " + angular.copy(apple_y));
 				var coord = left_coord[Math.floor(Math.random() * left_coord.length)];
 				apple_x = coord.x;
 				apple_y = coord.y;;
@@ -608,9 +597,9 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 			};
 
 			// avido to hit the player snake
-			// for ( var i = 0; i < trail.length; i++ ) {
-			// 	grids[trail[i].x][trail[i].y].visited = true;
-			// };
+			for ( var i = 0; i < trail.length; i++ ) {
+				grids[trail[i].x][trail[i].y].visited = true;
+			};
 
 			grids[origin_x][origin_y].visited = true;
 			grids[target_x][target_y].visited = false;
@@ -689,9 +678,7 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 
 		//	Find the shorest path first and then extend every pair that is able to extend 
 		function findLongestPath ( origin_x, origin_y, target_x, target_y, curSnakeTrail, shortPath ) {
-			// console.log("loong path=====");
-			// console.log("origin : " + origin_x + " " + origin_y);
-			// console.log("target : " + target_x + " " + target_y);
+
 			var longPath = angular.copy(shortPath);
 			//  Add the start vertex to the path
 			longPath.unshift({x:origin_x, y:origin_y});
@@ -707,6 +694,11 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 			// avoid to kill itself
 			for ( var i = 0; i < curSnakeTrail.length; i++ ) {
 				grids[curSnakeTrail[i].x][curSnakeTrail[i].y].visited = true;
+			};
+
+			// avoid to crash on player
+			for ( var i = 0; i < trail.length; i++ ) {
+				grids[trail[i].x][trail[i].y].visited = true;
 			};
 
 			// set the short path as visted
@@ -858,6 +850,11 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 			// exclude the snake body
 			for ( var i = 0; i < curSnakeTrail.length; i++ ) {
 				grids[curSnakeTrail[i].x][curSnakeTrail[i].y].visited = true;
+			};
+
+			// exclude the player snake body
+			for ( var i = 0; i < trail.length; i++ ) {
+				grids[trail[i].x][trail[i].y].visited = true;
 			};
 
 			angular.forEach(tempSteps, function(step){
