@@ -1,74 +1,55 @@
 'use strict';
 
 //Menu service used for managing  menus
-angular.module('timekiller').service('secondGameSvc', [
+angular.module('timekiller').service('thirdGameSvc', [
 
 	function() {
 
     var renderer, stage, id, worker;
     var state;
     this.initGame = function (container) {
-        //Create the renderer
-        renderer = PIXI.autoDetectRenderer(
-          1200, 600,
-          {antialias: false, transparent: false, resolution: 1}
-        );
-        renderer.view.style.border = "1px dashed black";
+        var app = new PIXI.Application();
+        app.view.backgroundColor = 0xffffff;
+        container.appendChild(app.view);
 
-        renderer.backgroundColor = 0xffffff;
+        var count = 0;
 
-        PIXI.loader
-    	  .add("modules/timekiller/images/walking-spritesheet.json")
-        .add("modules/timekiller/images/temp-snake.png")
-    	  .load(setup);
+        // build a rope!
+        var ropeLength = 918 / 20;
 
-        //Add the canvas to the HTML document
-        container.appendChild(renderer.view);
+        var points = [];
 
-        //Create a container object called the `stage`
-        stage = new PIXI.Container();
+        for (var i = 0; i < 20; i++) {
+            points.push(new PIXI.Point(i * ropeLength, 0));
+        }
 
-        // =============================
-       
+        var strip = new PIXI.mesh.Rope(PIXI.Texture.fromImage('modules/timekiller/images/temp-snake.png'), points);
 
-        // =============================
+        strip.x = -459;
+
+        var snakeContainer = new PIXI.Container();
+        snakeContainer.x = 400;
+        snakeContainer.y = 300;
+
+        snakeContainer.scale.set(800 / 1100);
+        app.stage.addChild(snakeContainer);
+
+        snakeContainer.addChild(strip);
+
+        app.ticker.add(function() {
+
+            count += 0.1;
+
+            // make the snake
+            for (var i = 0; i < points.length; i++) {
+                points[i].y = Math.sin((i * 0.5) + count) * 30;
+                points[i].x = i * ropeLength + Math.cos((i * 0.3) + count) * 20;
+            }
+        });
 
     };
 
-    var count;
-
-    // build a rope!
-    var ropeLength = 918 / 20;
-
-    var points;
-
     function setup() {
-
-      // =============================
-      count = 0;
-
-      // build a rope!
-      ropeLength = 918 / 20;
-
-      points = [];
-
-     for (var i = 0; i < 20; i++) {
-          points.push(new PIXI.Point(i * ropeLength, 0));
-      }
-
-      var strip = new PIXI.mesh.Rope(PIXI.Texture.fromImage('modules/timekiller/images/temp-snake.png'), points);
-
-      strip.x = -459;
-
-      var snakeContainer = new PIXI.Container();
-      snakeContainer.x = 400;
-      snakeContainer.y = 300;
-
-      snakeContainer.scale.set(800 / 1100);
-      stage.addChild(snakeContainer);
-
-      snakeContainer.addChild(strip);
-      // =============================
 
       id = PIXI.loader.resources["modules/timekiller/images/walking-spritesheet.json"].textures;
 			//
@@ -126,15 +107,7 @@ angular.module('timekiller').service('secondGameSvc', [
     }
 
     function play() {
-      // =======
-      count += 0.1;
 
-      // make the snake
-      for (var i = 0; i < points.length; i++) {
-          points[i].y = Math.sin((i * 0.5) + count) * 30;
-          points[i].x = i * ropeLength + Math.cos((i * 0.3) + count) * 20;
-      }
-      // =======
       worker.x += worker.vx;
       // move to the right
       if ( worker.vx > 0 && worker.x % 25 == 0 ) {
