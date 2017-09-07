@@ -1,8 +1,16 @@
 {"frames": {
 
+"ai-snake-body.png":
+{
+	"frame": {"x":82,"y":120,"w":113,"h":120},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":113,"h":120},
+	"sourceSize": {"w":113,"h":120}
+},
 "apple.png":
 {
-	"frame": {"x":0,"y":480,"w":114,"h":120},
+	"frame": {"x":113,"y":240,"w":114,"h":120},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":114,"h":120},
@@ -10,7 +18,7 @@
 },
 "snake-body.png":
 {
-	"frame": {"x":0,"y":360,"w":113,"h":120},
+	"frame": {"x":0,"y":240,"w":113,"h":120},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":113,"h":120},
@@ -18,7 +26,7 @@
 },
 "snake-head-down.png":
 {
-	"frame": {"x":0,"y":240,"w":82,"h":120},
+	"frame": {"x":0,"y":120,"w":82,"h":120},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":82,"h":120},
@@ -26,7 +34,7 @@
 },
 "snake-head-left.png":
 {
-	"frame": {"x":0,"y":722,"w":120,"h":82},
+	"frame": {"x":120,"y":421,"w":120,"h":82},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":120,"h":82},
@@ -34,7 +42,7 @@
 },
 "snake-head-right.png":
 {
-	"frame": {"x":0,"y":804,"w":120,"h":82},
+	"frame": {"x":0,"y":421,"w":120,"h":82},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":120,"h":82},
@@ -42,7 +50,7 @@
 },
 "snake-head-up.png":
 {
-	"frame": {"x":0,"y":120,"w":82,"h":120},
+	"frame": {"x":122,"y":0,"w":82,"h":120},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":82,"h":120},
@@ -58,7 +66,7 @@
 },
 "snake-tail-left.png":
 {
-	"frame": {"x":0,"y":661,"w":120,"h":61},
+	"frame": {"x":120,"y":360,"w":120,"h":61},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":120,"h":61},
@@ -66,7 +74,7 @@
 },
 "snake-tail-right.png":
 {
-	"frame": {"x":0,"y":600,"w":120,"h":61},
+	"frame": {"x":0,"y":360,"w":120,"h":61},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":120,"h":61},
@@ -85,8 +93,8 @@
 	"version": "1.0",
 	"image": "snake.png",
 	"format": "RGBA8888",
-	"size": {"w":122,"h":886},
+	"size": {"w":240,"h":503},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:65dea80d92e3d4c239c3f6571fe28889:2ae034158901dcdf83b7dc03dab54dce:2a194967d71da88bdc69ff162da0bdf1$"
+	"smartupdate": "$TexturePacker:SmartUpdate:5d252d26ecbcaeac68dbcde6c2f0ca4b:301fbc9c26c10a7972be982a21b11783:2a194967d71da88bdc69ff162da0bdf1$"
 }
 }

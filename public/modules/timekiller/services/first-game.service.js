@@ -425,7 +425,7 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 				} else if ( i == ai_trail.length - 1 ) {
 		          curPart = new PIXI.Sprite(id["snake-head-" + ai_snake.head_direction + ".png"]);
 		        } else {
-		          curPart = new PIXI.Sprite(id["snake-body.png"]);
+		          curPart = new PIXI.Sprite(id["ai-snake-body.png"]);
 	        	};
 
 				curPart.width = grid_size;
@@ -436,6 +436,24 @@ angular.module('timekiller').service('firGameSvc', ['$filter',
 			    	// ai_tail = 5;
 			    	endGame();
 			    };
+
+			    // if hit the user snake's body
+				for ( var j = 0; j < trail.length; j++ ) {
+					if ( trail[j].x == ai_snake.snake_x && trail[j].y == ai_snake.snake_y ) {
+						//  if it is head to head, compare the length
+						if ( j == trail.length - 1 ) {
+							if ( ai_tail > tail ) {
+								gameEndMessgae =  "AI won, you score is " + tail + ", AI score is " + ai_tail;
+							} else if ( ai_tail < tail ) {
+								gameEndMessgae =  "You won, you score is " + tail + ", AI score is " + ai_tail;
+							} else {
+								gameEndMessgae =  "Draw, you score is " + tail + ", AI score is " + ai_tail;
+							};
+						}
+						gameEndMessgae = "AI won, you score is " + tail + ", AI score is " + ai_tail;
+						endGame();
+				    };
+				};
 
 	        	curAISnake.addChild(curPart);
 	      	};
